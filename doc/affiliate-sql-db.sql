@@ -5,7 +5,6 @@ GO
 USE AffiliateMarketingSystem;
 GO
 
--- Create tables
 CREATE TABLE Publisher (
     publisher_id INT PRIMARY KEY IDENTITY(1,1),
     username NVARCHAR(100),
@@ -278,6 +277,26 @@ CREATE TABLE Conversion (
     rejection_reason NVARCHAR(255),
     FOREIGN KEY (promote_id) REFERENCES Promote(promote_id),
     FOREIGN KEY (campaign_conversion_type_id) REFERENCES CampaignConversionType(campaign_conversion_id)
+);
+
+CREATE TABLE CampaignPublisherCommission (
+    commission_id INT PRIMARY KEY IDENTITY(1,1),
+    publisher_id INT,
+    campaign_id INT,
+    total_amount DECIMAL(18,2) DEFAULT 0,
+    pending_amount DECIMAL(18,2) DEFAULT 0,
+    approved_amount DECIMAL(18,2) DEFAULT 0,
+    rejected_amount DECIMAL(18,2) DEFAULT 0,
+    paid_amount DECIMAL(18,2) DEFAULT 0,
+    last_conversion_date DATETIME,
+    last_approval_date DATETIME,
+    holdout_days INT DEFAULT 30,
+    commission_status NVARCHAR(50), -- 'Active', 'On Hold', 'Suspended', 'Completed'
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME,
+	available_date DATETIME,
+    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
+    FOREIGN KEY (campaign_id) REFERENCES Campaign(campaign_id)
 );
 
 CREATE TABLE FraudType (
