@@ -1,19 +1,11 @@
--- Create database
-CREATE DATABASE AffiliateMarketingSystem;
-GO
 
-USE AffiliateMarketingSystem;
-GO
-
-
--- Create Admin Table
-CREATE TABLE Admin (
+CREATE TABLE [Admin] (
     admin_id INT PRIMARY KEY IDENTITY(1,1),
     username NVARCHAR(100) UNIQUE NOT NULL,
     email NVARCHAR(255) UNIQUE NOT NULL,
     password_hash NVARCHAR(255) NOT NULL,
     full_name NVARCHAR(255),
-    role INT NOT NULL, -- Enum Role Stored as INT
+    [role] INT NOT NULL, -- Enum Role Stored as INT
     created_at DATETIME DEFAULT GETDATE(),
     last_login DATETIME,
     is_active BIT DEFAULT 1
@@ -32,7 +24,8 @@ CREATE TABLE Publisher (
     registration_date DATE,
     is_active BIT,
     referred_by_code NVARCHAR(100),
-    referral_code NVARCHAR(100)
+    referral_code NVARCHAR(100),
+    [role] INT NOT NULL -- Role as INT (Enum)
 );
 
 CREATE TABLE PublisherProfile (
@@ -104,7 +97,8 @@ CREATE TABLE Advertiser (
     industry NVARCHAR(100),
     tax_id NVARCHAR(100),
     registration_date DATE,
-    is_active BIT
+    is_active BIT,
+    [role] INT NOT NULL -- Role as INT (Enum)
 );
 
 CREATE TABLE AdvertiserBalance (
