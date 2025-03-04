@@ -66,6 +66,9 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 #region Register Service DI
 builder.Services.AddScoped<IAdvertiserService, AdvertiserService>();
+builder.Services.AddScoped<ICampaignService, CampaignService>();
+builder.Services.AddScoped<IPublisherService, PublisherService>();
+builder.Services.AddScoped<IPromoteService, PromoteService>();
 #endregion
 
 #region Register Mapping DTOs

@@ -1,4 +1,4 @@
-
+﻿
 CREATE TABLE [Admin] (
     admin_id INT PRIMARY KEY IDENTITY(1,1),
     username NVARCHAR(100) UNIQUE NOT NULL,
@@ -9,6 +9,12 @@ CREATE TABLE [Admin] (
     created_at DATETIME DEFAULT GETDATE(),
     last_login DATETIME,
     is_active BIT DEFAULT 1
+);
+
+CREATE TABLE Currency (
+    currency_code NVARCHAR(10) PRIMARY KEY, -- 'USD', 'EUR', 'GBP'
+    currency_name NVARCHAR(50),
+    exchange_rate DECIMAL(18,6) -- Example: 1 USD = 0.85 EUR
 );
 
 CREATE TABLE Publisher (
@@ -51,8 +57,10 @@ CREATE TABLE PublisherReferral (
     referral_date DATE,
     reward_amount DECIMAL(18,2),
     is_paid BIT,
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
     FOREIGN KEY (referrer_id) REFERENCES Publisher(publisher_id),
-    FOREIGN KEY (referred_id) REFERENCES Publisher(publisher_id)
+    FOREIGN KEY (referred_id) REFERENCES Publisher(publisher_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE PublisherBalance (
@@ -62,7 +70,9 @@ CREATE TABLE PublisherBalance (
     pending_balance DECIMAL(18,2),
     lifetime_earnings DECIMAL(18,2),
     last_updated DATE,
-    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE PaymentMethod (
@@ -82,7 +92,9 @@ CREATE TABLE PayoutRequest (
     status NVARCHAR(50),
     rejection_reason NVARCHAR(255),
     reviewed_by INT,
-    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE Advertiser (
@@ -110,7 +122,9 @@ CREATE TABLE AdvertiserBalance (
     lifetime_withdrawals DECIMAL(18,2),
     lifetime_spend DECIMAL(18,2),
     last_updated DATE,
-    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE DepositRequest (
@@ -121,7 +135,9 @@ CREATE TABLE DepositRequest (
     status NVARCHAR(50),
     payment_method NVARCHAR(100),
     transaction_id NVARCHAR(255),
-    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE WithdrawalRequest (
@@ -132,7 +148,9 @@ CREATE TABLE WithdrawalRequest (
     status NVARCHAR(50),
     rejection_reason NVARCHAR(255),
     reviewed_by INT,
-    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE Payment (
@@ -145,7 +163,9 @@ CREATE TABLE Payment (
     status NVARCHAR(50),
     notes NVARCHAR(500),
     request_type NVARCHAR(50),
-    FOREIGN KEY (payment_method_id) REFERENCES PaymentMethod(method_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (payment_method_id) REFERENCES PaymentMethod(method_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE PayoutRule (
@@ -185,7 +205,9 @@ CREATE TABLE Campaign (
     last_updated DATE,
     is_private BIT,
     conversion_rate DECIMAL(10,2),
-    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
+    FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE CampaignAdvertiserURL (
@@ -283,8 +305,10 @@ CREATE TABLE Conversion (
     is_fraud BIT,
     approval_date DATE,
     rejection_reason NVARCHAR(255),
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
     FOREIGN KEY (promote_id) REFERENCES Promote(promote_id),
-    FOREIGN KEY (campaign_conversion_type_id) REFERENCES CampaignConversionType(campaign_conversion_id)
+    FOREIGN KEY (campaign_conversion_type_id) REFERENCES CampaignConversionType(campaign_conversion_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE CampaignPublisherCommission (
@@ -303,8 +327,10 @@ CREATE TABLE CampaignPublisherCommission (
     created_at DATETIME DEFAULT GETDATE(),
     updated_at DATETIME,
 	available_date DATETIME,
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',
     FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
-    FOREIGN KEY (campaign_id) REFERENCES Campaign(campaign_id)
+    FOREIGN KEY (campaign_id) REFERENCES Campaign(campaign_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE FraudType (
@@ -338,7 +364,9 @@ CREATE TABLE FraudAdjustment (
     adjustment_date DATE,
     reason NVARCHAR(500),
     approved_by INT,
-    FOREIGN KEY (fraud_case_id) REFERENCES FraudCase(case_id)
+	currency_code NVARCHAR(10) NOT NULL DEFAULT 'VND',	
+    FOREIGN KEY (fraud_case_id) REFERENCES FraudCase(case_id),
+	FOREIGN KEY (currency_code) REFERENCES Currency(currency_code)
 );
 
 CREATE TABLE FraudReport (
@@ -360,3 +388,176 @@ CREATE TABLE FraudReport (
     FOREIGN KEY (publisher_id) REFERENCES Publisher(publisher_id),
     FOREIGN KEY (advertiser_id) REFERENCES Advertiser(advertiser_id)
 );
+
+
+
+
+
+
+
+
+
+-- Insert Currencies (VND as default)
+INSERT INTO Currency (currency_code, currency_name, exchange_rate) VALUES
+('VND', 'Vietnamese Dong', 1.000000);
+
+-- Insert Admin
+INSERT INTO [Admin] (username, email, password_hash, full_name, [role])
+VALUES ('admin_user', 'admin@example.com', HASHBYTES('SHA2_256', 'SecurePass123'), 'System Administrator', 1);
+
+-- Insert Publisher
+INSERT INTO Publisher (username, email, password_hash, company_name, contact_name, phone_number, address, tax_id, registration_date, is_active, referral_code, [role])
+VALUES ('pub_001', 'publisher1@example.com', HASHBYTES('SHA2_256', 'PublisherPass123'), 'Affiliate Network Ltd.', 'John Doe', '+84-123-456-789', '123 Affiliate St, HCMC, Vietnam', 'VN12345678', GETDATE(), 1, NEWID(), 2);
+
+-- Insert Publisher Balance (VND)
+INSERT INTO PublisherBalance (publisher_id, available_balance, pending_balance, lifetime_earnings, last_updated, currency_code)
+VALUES (1, 12000000.00, 2400000.00, 50000000.00, GETDATE(), 'VND');
+
+-- Insert Advertiser
+INSERT INTO Advertiser (company_name, contact_name, email, password_hash, phone_number, address, website, industry, tax_id, registration_date, is_active, [role])
+VALUES ('Tech Innovators Vietnam', 'Alice Nguyen', 'advertiser@example.vn', HASHBYTES('SHA2_256', 'AdvertiserPass123'), '+84-987-654-321', '456 Digital Ave, Hanoi, Vietnam', 'https://tech-innovators.vn', 'Technology', 'VN98765432', GETDATE(), 1, 3);
+
+-- Insert Advertiser Balance (VND)
+INSERT INTO AdvertiserBalance (advertiser_id, available_balance, pending_balance, lifetime_deposits, lifetime_withdrawals, lifetime_spend, last_updated, currency_code)
+VALUES (1, 500000000.00, 100000000.00, 2500000000.00, 500000000.00, 2000000000.00, GETDATE(), 'VND');
+
+-- Insert Campaign (VND)
+INSERT INTO Campaign (advertiser_id, name, description, budget, daily_cap, monthly_cap, start_date, end_date, targeting_countries, targeting_devices, status, created_date, last_updated, is_private, conversion_rate, currency_code)
+VALUES (1, 'Tết Sale Campaign', 'Promotion for Vietnamese Lunar New Year', 100000000.00, 5000000.00, 150000000.00, GETDATE(), DATEADD(DAY, 30, GETDATE()), 'VN', 'Mobile, Desktop', 'Active', GETDATE(), GETDATE(), 0, 2.5, 'VND');
+
+-- Insert Traffic Source
+INSERT INTO TrafficSource (publisher_id, name, type, url, added_date, is_active)
+VALUES (1, 'Facebook Ads', 'Social Media', 'https://facebook.com/ad_campaign', GETDATE(), 1);
+
+-- Insert Promote (Publisher promoting campaign)
+INSERT INTO Promote (publisher_id, campaign_id, campaign_advertiser_url_id, base_tracking_url, join_date, is_approved, status, last_updated)
+VALUES (1, 1, NULL, 'https://track.example.com/click?cid=1&pid=1', GETDATE(), 1, 'Active', GETDATE());
+
+-- Insert Conversion Type
+INSERT INTO ConversionType (name, description, tracking_method, requires_approval, action_type)
+VALUES ('Purchase', 'Conversion when a sale is completed', 'Postback URL', 1, 'Sale');
+
+-- ✅ Insert CampaignConversionType (Fixes missing reference in Conversion)
+INSERT INTO CampaignConversionType (campaign_id, conversion_type_id, commission_amount, commission_type, cookie_window_days)
+VALUES (1, 1, 1200000.00, 'Fixed', 30);
+
+-- ✅ Insert Conversion (Fixes missing reference in FraudCase)
+INSERT INTO Conversion (promote_id, campaign_conversion_type_id, conversion_type, commission_amount, conversion_value, conversion_time, status, transaction_id, ip_address, user_agent, country, city, device_type, browser, referrer, is_unique, is_suspicious, is_fraud)
+VALUES (1, 1, 'Purchase', 1200000.00, '5000000.00', GETDATE(), 'Approved', 'TXN123456', '192.168.1.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', 'Vietnam', 'Ho Chi Minh', 'Desktop', 'Chrome', 'https://google.com', 1, 0, 0);
+
+-- Insert Payment Method
+INSERT INTO PaymentMethod (type, name, description, is_active, added_date)
+VALUES ('Bank Transfer', 'Wire Transfer', 'Standard bank wire transfer', 1, GETDATE());
+
+-- Insert Payout Request (Publisher requesting payment) - VND
+INSERT INTO PayoutRequest (publisher_id, amount, request_date, status, reviewed_by, currency_code)
+VALUES (1, 9600000.00, GETDATE(), 'Pending', NULL, 'VND');
+
+-- Insert Deposit Request (Advertiser depositing funds) - VND
+INSERT INTO DepositRequest (advertiser_id, amount, request_date, status, payment_method, transaction_id, currency_code)
+VALUES (1, 200000000.00, GETDATE(), 'Completed', 'Bank Transfer', 'TXN789123', 'VND');
+
+-- Insert Withdrawal Request (Advertiser withdrawing funds) - VND
+INSERT INTO WithdrawalRequest (advertiser_id, amount, request_date, status, reviewed_by, currency_code)
+VALUES (1, 80000000.00, GETDATE(), 'Approved', 1, 'VND');
+
+-- Insert Fraud Type
+INSERT INTO FraudType (name, description, severity_level)
+VALUES ('Click Fraud', 'Fraudulent clicks detected from bot activity', 3);
+
+-- ✅ Insert FraudCase (Fixes missing reference in FraudAdjustment)
+INSERT INTO FraudCase (conversion_id, fraud_type_id, detection_date, evidence, status, resolution, resolution_date, detected_by, resolved_by)
+VALUES (1, 1, GETDATE(), 'Suspicious IP with high click-through rate', 'Under Review', NULL, NULL, 1, NULL);
+
+-- ✅ Insert FraudAdjustment (Now has a valid `fraud_case_id`)
+INSERT INTO FraudAdjustment (fraud_case_id, original_amount, adjusted_amount, adjustment_percentage, adjustment_date, reason, approved_by, currency_code)
+VALUES (1, 1200000.00, 0.00, 100.00, GETDATE(), 'Click fraud detected, commission revoked', 1, 'VND');
+
+
+
+
+
+
+
+
+-- THIS IS FOR DELETE ALL TABLES
+-- Step 1: Disable and Drop All Foreign Key Constraints
+DECLARE @sql NVARCHAR(MAX) = '';
+
+SELECT @sql += 'ALTER TABLE [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '] DROP CONSTRAINT [' + CONSTRAINT_NAME + '];' + CHAR(10)
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS
+WHERE CONSTRAINT_TYPE = 'FOREIGN KEY';
+
+PRINT 'Dropping Foreign Keys...';
+EXEC sp_executesql @sql;
+
+-- Step 2: Drop All Tables
+SET @sql = '';
+
+SELECT @sql += 'DROP TABLE IF EXISTS [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(10)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+PRINT 'Dropping Tables...';
+EXEC sp_executesql @sql;
+
+-- Optional: Step 3 - Drop Views, if needed
+SET @sql = '';
+
+SELECT @sql += 'DROP VIEW IF EXISTS [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(10)
+FROM INFORMATION_SCHEMA.VIEWS;
+
+PRINT 'Dropping Views...';
+EXEC sp_executesql @sql;
+
+-- Step 4: Re-enable Foreign Keys (Optional, for future use)
+PRINT 'All tables dropped successfully!';
+
+
+
+
+
+
+
+-- THIS IS FOR DELETE ALL ROWS FROM ALL TABLES - NOT WORKING
+-- Step 1: Disable Foreign Key Constraints
+DECLARE @sql NVARCHAR(MAX) = '';
+
+SELECT @sql += 'ALTER TABLE [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '] NOCHECK CONSTRAINT ALL;' + CHAR(10)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+PRINT 'Disabling Foreign Keys...';
+EXEC sp_executesql @sql;
+
+-- Step 2: Delete All Data from Tables
+SET @sql = '';
+
+SELECT @sql += 'DELETE FROM [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(10)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+PRINT 'Deleting All Data...';
+EXEC sp_executesql @sql;
+
+-- Step 3: Reset Identity Columns (Restart IDs from 1)
+SET @sql = '';
+
+SELECT @sql += 'DBCC CHECKIDENT ([' + TABLE_SCHEMA + '].[' + TABLE_NAME + '], RESEED, 0);' + CHAR(10)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+PRINT 'Resetting Identity Columns...';
+EXEC sp_executesql @sql;
+
+-- Step 4: Re-enable Foreign Key Constraints
+SET @sql = '';
+
+SELECT @sql += 'ALTER TABLE [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '] CHECK CONSTRAINT ALL;' + CHAR(10)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE';
+
+PRINT 'Re-enabling Foreign Keys...';
+EXEC sp_executesql @sql;
+
+PRINT 'All rows deleted and identity columns reset!';
