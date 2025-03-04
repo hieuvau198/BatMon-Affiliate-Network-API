@@ -54,6 +54,11 @@ builder.Services.AddSwaggerGen(c =>
 
 #region Register DbContext
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables(); // Ensures env vars override appsettings.json
+
 builder.Services.AddDbContext<AffiliateDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
