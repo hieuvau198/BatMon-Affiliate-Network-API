@@ -74,10 +74,12 @@ builder.Services.AddScoped<IAdvertiserService, AdvertiserService>();
 builder.Services.AddScoped<ICampaignService, CampaignService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IPromoteService, PromoteService>();
+builder.Services.AddScoped<ICampaignPolicyService, CampaignPolicyService>();
 #endregion
 
 #region Register Mapping DTOs
-builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile));
+builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
+                                typeof(CampaignPolicyMappingProfile));
 #endregion
 
 #region Add CORS service and allow all origins for simplicity
@@ -99,11 +101,7 @@ app.UseCors("AllowAll");
 
 // Enable Swagger UI for both development and production environments
 app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-    c.RoutePrefix = string.Empty; // Opens Swagger at the root URL
-});
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

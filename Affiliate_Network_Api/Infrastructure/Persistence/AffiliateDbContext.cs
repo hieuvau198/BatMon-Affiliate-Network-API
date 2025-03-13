@@ -29,6 +29,8 @@ public partial class AffiliateDbContext : DbContext
     public virtual DbSet<CampaignAdvertiserUrl> CampaignAdvertiserUrls { get; set; }
 
     public virtual DbSet<CampaignConversionType> CampaignConversionTypes { get; set; }
+    
+    public virtual DbSet<CampaignPolicy> CampaignPolicies { get; set; }
 
     public virtual DbSet<CampaignPublisherCommission> CampaignPublisherCommissions { get; set; }
 
@@ -71,10 +73,6 @@ public partial class AffiliateDbContext : DbContext
     public virtual DbSet<TrafficSource> TrafficSources { get; set; }
 
     public virtual DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
-
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseSqlServer("Server=tcp:hieuvauserver.database.windows.net,1433;Initial Catalog=affiliatedb;Persist Security Info=False;User ID=hieuvau198;Password=ouneerasmE1@;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -319,6 +317,31 @@ public partial class AffiliateDbContext : DbContext
             entity.HasOne(d => d.ConversionType).WithMany(p => p.CampaignConversionTypes)
                 .HasForeignKey(d => d.ConversionTypeId)
                 .HasConstraintName("FK__CampaignC__conve__00AA174D");
+        });
+
+        modelBuilder.Entity<CampaignPolicy>(entity =>
+        {
+            entity.HasKey(e => e.PolicyId).HasName("PK__Campaign__47DA3F03522E6E1F");
+
+            entity.ToTable("Campaign_Policy");
+
+            entity.Property(e => e.PolicyId).HasColumnName("policy_id");
+            entity.Property(e => e.AppliedTo)
+                .HasMaxLength(255)
+                .HasDefaultValue("Tat Ca Chien Dichj")
+                .HasColumnName("applied_to");
+            entity.Property(e => e.Description)
+                .HasMaxLength(1000)
+                .HasDefaultValue("Noi Dung Quy Dinh")
+                .HasColumnName("description");
+            entity.Property(e => e.PenaltyInfo)
+                .HasMaxLength(500)
+                .HasDefaultValue("Hinh Thuc Xu Phat")
+                .HasColumnName("penalty_info");
+            entity.Property(e => e.PolicyName)
+                .HasMaxLength(255)
+                .HasDefaultValue("Chinh Sach Chung")
+                .HasColumnName("policy_name");
         });
 
         modelBuilder.Entity<CampaignPublisherCommission>(entity =>
