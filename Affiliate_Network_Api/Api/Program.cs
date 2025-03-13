@@ -75,11 +75,13 @@ builder.Services.AddScoped<ICampaignService, CampaignService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IPromoteService, PromoteService>();
 builder.Services.AddScoped<ICampaignPolicyService, CampaignPolicyService>();
+builder.Services.AddScoped<ITrafficSourceService, TrafficSourceService>();
 #endregion
 
 #region Register Mapping DTOs
 builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
-                                typeof(CampaignPolicyMappingProfile));
+                                typeof(CampaignPolicyMappingProfile),
+                                typeof(TrafficSourceMappingProfile));
 #endregion
 
 #region Add CORS service and allow all origins for simplicity
