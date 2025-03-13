@@ -4,6 +4,7 @@ using Application.Services;
 using Domain.Interfaces;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
+using Infrastructure.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -64,6 +65,10 @@ builder.Services.AddDbContext<AffiliateDbContext>(options =>
 
 #endregion
 
+#region Register UoW
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+#endregion
+
 #region Register Repository DI
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
@@ -76,12 +81,14 @@ builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IPromoteService, PromoteService>();
 builder.Services.AddScoped<ICampaignPolicyService, CampaignPolicyService>();
 builder.Services.AddScoped<ITrafficSourceService, TrafficSourceService>();
+builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 #endregion
 
 #region Register Mapping DTOs
 builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(CampaignPolicyMappingProfile),
-                                typeof(TrafficSourceMappingProfile));
+                                typeof(TrafficSourceMappingProfile),
+                                typeof(CampaignMappingProfile));
 #endregion
 
 #region Add CORS service and allow all origins for simplicity

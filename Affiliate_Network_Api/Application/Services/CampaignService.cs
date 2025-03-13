@@ -13,18 +13,18 @@ namespace Application.Services
 {
     public class CampaignService : ICampaignService
     {
-        private readonly IGenericRepository<Campaign> _campaignRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CampaignService(IGenericRepository<Campaign> campaignRepository, IMapper mapper)
+        public CampaignService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _campaignRepository = campaignRepository ?? throw new ArgumentNullException(nameof(campaignRepository));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<CampaignDto>> GetAllCampaignsAsync()
         {
-            var campaigns = await _campaignRepository.GetAllAsync();
+            var campaigns = await _unitOfWork.Campaigns.GetAllAsync();
             return _mapper.Map<IEnumerable<CampaignDto>>(campaigns);
         }
 
@@ -34,16 +34,15 @@ namespace Application.Services
 
             if (includeRelated)
             {
-                campaign = await _campaignRepository.GetByIdAsync(id,
+                campaign = await _unitOfWork.Campaigns.GetByIdAsync(id,
                     c => c.Advertiser,
                     c => c.CampaignAdvertiserUrls,
                     c => c.CampaignConversionTypes,
-                    c => c.CampaignPublisherCommissions,
-                    c => c.CurrencyCodeNavigation);
+                    c => c.CampaignPublisherCommissions);
             }
             else
             {
-                campaign = await _campaignRepository.GetByIdAsync(id);
+                campaign = await _unitOfWork.Campaigns.GetByIdAsync(id);
             }
 
             if (campaign == null)
@@ -56,7 +55,7 @@ namespace Application.Services
 
         public async Task<IEnumerable<CampaignDto>> GetCampaignsByAdvertiserIdAsync(int advertiserId)
         {
-            var campaigns = await _campaignRepository.GetAllAsync(c => c.AdvertiserId == advertiserId);
+            var campaigns = await _unitOfWork.Campaigns.GetAllAsync(c => c.AdvertiserId == advertiserId);
             return _mapper.Map<IEnumerable<CampaignDto>>(campaigns);
         }
 
@@ -69,13 +68,15 @@ namespace Application.Services
             campaign.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
             campaign.Status = "Draft"; // Default status
 
-            var createdCampaign = await _campaignRepository.CreateAsync(campaign);
+            var createdCampaign = await _unitOfWork.Campaigns.CreateAsync(campaign);
+            await _unitOfWork.SaveChangesAsync(); // Ensure changes are saved
+
             return _mapper.Map<CampaignDto>(createdCampaign);
         }
 
         public async Task<CampaignDto> UpdateCampaignAsync(CampaignUpdateDto campaignDto)
         {
-            var existingCampaign = await _campaignRepository.GetByIdAsync(campaignDto.CampaignId);
+            var existingCampaign = await _unitOfWork.Campaigns.GetByIdAsync(campaignDto.CampaignId);
             if (existingCampaign == null)
             {
                 throw new KeyNotFoundException($"Campaign with ID {campaignDto.CampaignId} not found");
@@ -87,24 +88,27 @@ namespace Application.Services
             // Always update the LastUpdated timestamp
             existingCampaign.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            await _campaignRepository.UpdateAsync(existingCampaign);
+            await _unitOfWork.Campaigns.UpdateAsync(existingCampaign);
+            await _unitOfWork.SaveChangesAsync(); // Ensure changes are saved
+
             return _mapper.Map<CampaignDto>(existingCampaign);
         }
 
         public async Task DeleteCampaignAsync(int id)
         {
-            var campaign = await _campaignRepository.GetByIdAsync(id);
+            var campaign = await _unitOfWork.Campaigns.GetByIdAsync(id);
             if (campaign == null)
             {
                 throw new KeyNotFoundException($"Campaign with ID {id} not found");
             }
 
-            await _campaignRepository.DeleteAsync(campaign);
+            await _unitOfWork.Campaigns.DeleteAsync(campaign);
+            await _unitOfWork.SaveChangesAsync(); // Ensure changes are saved
         }
 
         public async Task<bool> ActivateCampaignAsync(int id)
         {
-            var campaign = await _campaignRepository.GetByIdAsync(id);
+            var campaign = await _unitOfWork.Campaigns.GetByIdAsync(id);
             if (campaign == null)
             {
                 throw new KeyNotFoundException($"Campaign with ID {id} not found");
@@ -112,13 +116,15 @@ namespace Application.Services
 
             campaign.Status = "Active";
             campaign.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
-            await _campaignRepository.UpdateAsync(campaign);
+            await _unitOfWork.Campaigns.UpdateAsync(campaign);
+            await _unitOfWork.SaveChangesAsync(); // Ensure changes are saved
+
             return true;
         }
 
         public async Task<bool> DeactivateCampaignAsync(int id)
         {
-            var campaign = await _campaignRepository.GetByIdAsync(id);
+            var campaign = await _unitOfWork.Campaigns.GetByIdAsync(id);
             if (campaign == null)
             {
                 throw new KeyNotFoundException($"Campaign with ID {id} not found");
@@ -126,40 +132,42 @@ namespace Application.Services
 
             campaign.Status = "Inactive";
             campaign.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
-            await _campaignRepository.UpdateAsync(campaign);
+            await _unitOfWork.Campaigns.UpdateAsync(campaign);
+            await _unitOfWork.SaveChangesAsync(); // Ensure changes are saved
+
             return true;
         }
 
         public async Task<bool> CampaignExistsAsync(int id)
         {
-            return await _campaignRepository.ExistsAsync(c => c.CampaignId == id);
+            return await _unitOfWork.Campaigns.ExistsAsync(c => c.CampaignId == id);
         }
 
         public async Task<int> GetCampaignCountAsync()
         {
-            return await _campaignRepository.CountAsync(c => true);
+            return await _unitOfWork.Campaigns.CountAsync(c => true);
         }
 
         public async Task<int> GetCampaignCountByAdvertiserAsync(int advertiserId)
         {
-            return await _campaignRepository.CountAsync(c => c.AdvertiserId == advertiserId);
+            return await _unitOfWork.Campaigns.CountAsync(c => c.AdvertiserId == advertiserId);
         }
 
         public async Task<decimal> GetTotalBudgetByAdvertiserAsync(int advertiserId)
         {
-            var campaigns = await _campaignRepository.GetAllAsync(c => c.AdvertiserId == advertiserId);
+            var campaigns = await _unitOfWork.Campaigns.GetAllAsync(c => c.AdvertiserId == advertiserId);
             return campaigns.Sum(c => c.Budget ?? 0);
         }
 
         public async Task<IEnumerable<CampaignDto>> GetActiveCampaignsAsync()
         {
-            var campaigns = await _campaignRepository.GetAllAsync(c => c.Status == "Active");
+            var campaigns = await _unitOfWork.Campaigns.GetAllAsync(c => c.Status == "Active");
             return _mapper.Map<IEnumerable<CampaignDto>>(campaigns);
         }
 
         public async Task<IEnumerable<CampaignDto>> GetCampaignsByStatusAsync(string status)
         {
-            var campaigns = await _campaignRepository.GetAllAsync(c => c.Status == status);
+            var campaigns = await _unitOfWork.Campaigns.GetAllAsync(c => c.Status == status);
             return _mapper.Map<IEnumerable<CampaignDto>>(campaigns);
         }
     }
