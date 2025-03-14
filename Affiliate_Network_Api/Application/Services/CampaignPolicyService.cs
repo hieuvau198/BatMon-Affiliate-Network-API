@@ -13,25 +13,24 @@ namespace Application.Services
 {
     public class CampaignPolicyService : ICampaignPolicyService
     {
-        private readonly IGenericRepository<CampaignPolicy> _policyRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CampaignPolicyService(IGenericRepository<CampaignPolicy> policyRepository, IMapper mapper)
+        public CampaignPolicyService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _policyRepository = policyRepository ?? throw new ArgumentNullException(nameof(policyRepository));
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<CampaignPolicyDto>> GetAllCampaignPoliciesAsync()
         {
-            var policies = await _policyRepository.GetAllAsync();
+            var policies = await _unitOfWork.CampaignPolicies.GetAllAsync();
             return _mapper.Map<IEnumerable<CampaignPolicyDto>>(policies);
         }
 
         public async Task<CampaignPolicyDto> GetCampaignPolicyByIdAsync(int id)
         {
-            var policy = await _policyRepository.GetByIdAsync(id);
-
+            var policy = await _unitOfWork.CampaignPolicies.GetByIdAsync(id);
             if (policy == null)
             {
                 throw new KeyNotFoundException($"Campaign Policy with ID {id} not found");
@@ -43,49 +42,50 @@ namespace Application.Services
         public async Task<CampaignPolicyDto> CreateCampaignPolicyAsync(CampaignPolicyCreateDto policyDto)
         {
             var policy = _mapper.Map<CampaignPolicy>(policyDto);
-            var createdPolicy = await _policyRepository.CreateAsync(policy);
+            var createdPolicy = await _unitOfWork.CampaignPolicies.CreateAsync(policy);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<CampaignPolicyDto>(createdPolicy);
         }
 
         public async Task<CampaignPolicyDto> UpdateCampaignPolicyAsync(CampaignPolicyUpdateDto policyDto)
         {
-            var existingPolicy = await _policyRepository.GetByIdAsync(policyDto.PolicyId);
-
+            var existingPolicy = await _unitOfWork.CampaignPolicies.GetByIdAsync(policyDto.PolicyId);
             if (existingPolicy == null)
             {
                 throw new KeyNotFoundException($"Campaign Policy with ID {policyDto.PolicyId} not found");
             }
 
             _mapper.Map(policyDto, existingPolicy);
-            await _policyRepository.UpdateAsync(existingPolicy);
+            await _unitOfWork.CampaignPolicies.UpdateAsync(existingPolicy);
+            await _unitOfWork.SaveChangesAsync();
             return _mapper.Map<CampaignPolicyDto>(existingPolicy);
         }
 
         public async Task DeleteCampaignPolicyAsync(int id)
         {
-            var policy = await _policyRepository.GetByIdAsync(id);
-
+            var policy = await _unitOfWork.CampaignPolicies.GetByIdAsync(id);
             if (policy == null)
             {
                 throw new KeyNotFoundException($"Campaign Policy with ID {id} not found");
             }
 
-            await _policyRepository.DeleteAsync(policy);
+            await _unitOfWork.CampaignPolicies.DeleteAsync(policy);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<bool> CampaignPolicyExistsAsync(int id)
         {
-            return await _policyRepository.ExistsAsync(p => p.PolicyId == id);
+            return await _unitOfWork.CampaignPolicies.ExistsAsync(p => p.PolicyId == id);
         }
 
         public async Task<int> GetCampaignPolicyCountAsync()
         {
-            return await _policyRepository.CountAsync(p => true);
+            return await _unitOfWork.CampaignPolicies.CountAsync(p => true);
         }
 
         public async Task<IEnumerable<CampaignPolicyDto>> GetCampaignPoliciesByAppliedToAsync(string appliedTo)
         {
-            var policies = await _policyRepository.GetAllAsync(p => p.AppliedTo == appliedTo);
+            var policies = await _unitOfWork.CampaignPolicies.GetAllAsync(p => p.AppliedTo == appliedTo);
             return _mapper.Map<IEnumerable<CampaignPolicyDto>>(policies);
         }
     }

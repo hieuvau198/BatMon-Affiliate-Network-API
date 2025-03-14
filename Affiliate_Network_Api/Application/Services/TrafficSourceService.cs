@@ -12,23 +12,20 @@ namespace Application.Services
 {
     public class TrafficSourceService : ITrafficSourceService
     {
-        private readonly IGenericRepository<TrafficSource> _trafficSourceRepository;
-        private readonly IGenericRepository<Publisher> _publisherRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public TrafficSourceService(
-            IGenericRepository<TrafficSource> trafficSourceRepository,
-            IGenericRepository<Publisher> publisherRepository,
+            IUnitOfWork unitOfWork,
             IMapper mapper)
         {
-            _trafficSourceRepository = trafficSourceRepository ?? throw new ArgumentNullException(nameof(trafficSourceRepository));
-            _publisherRepository = publisherRepository ?? throw new ArgumentNullException(nameof(publisherRepository));
+            _unitOfWork = unitOfWork;
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         public async Task<IEnumerable<TrafficSourceDto>> GetAllTrafficSourcesAsync()
         {
-            var trafficSources = await _trafficSourceRepository.GetAllAsync();
+            var trafficSources = await _unitOfWork.TrafficSources.GetAllAsync();
             return _mapper.Map<IEnumerable<TrafficSourceDto>>(trafficSources);
         }
 
@@ -38,13 +35,13 @@ namespace Application.Services
 
             if (includeRelated)
             {
-                trafficSource = await _trafficSourceRepository.GetByIdAsync(id,
+                trafficSource = await _unitOfWork.TrafficSources.GetByIdAsync(id,
                     ts => ts.Publisher,
                     ts => ts.PromoteUrlvariants);
             }
             else
             {
-                trafficSource = await _trafficSourceRepository.GetByIdAsync(id);
+                trafficSource = await _unitOfWork.TrafficSources.GetByIdAsync(id);
             }
 
             if (trafficSource == null)
@@ -58,19 +55,19 @@ namespace Application.Services
         public async Task<IEnumerable<TrafficSourceDto>> GetTrafficSourcesByPublisherIdAsync(int publisherId)
         {
             // First check if publisher exists
-            if (!await _publisherRepository.ExistsAsync(p => p.PublisherId == publisherId))
+            if (!await _unitOfWork.Publishers.ExistsAsync(p => p.PublisherId == publisherId))
             {
                 throw new KeyNotFoundException($"Publisher with ID {publisherId} not found");
             }
 
-            var trafficSources = await _trafficSourceRepository.GetAllAsync(ts => ts.PublisherId == publisherId);
+            var trafficSources = await _unitOfWork.TrafficSources.GetAllAsync(ts => ts.PublisherId == publisherId);
             return _mapper.Map<IEnumerable<TrafficSourceDto>>(trafficSources);
         }
 
         public async Task<TrafficSourceDto> CreateTrafficSourceAsync(TrafficSourceCreateDto trafficSourceDto)
         {
             // Validate publisher exists if ID is provided
-            if (trafficSourceDto.PublisherId.HasValue && !await _publisherRepository.ExistsAsync(p => p.PublisherId == trafficSourceDto.PublisherId))
+            if (trafficSourceDto.PublisherId.HasValue && !await _unitOfWork.Publishers.ExistsAsync(p => p.PublisherId == trafficSourceDto.PublisherId))
             {
                 throw new KeyNotFoundException($"Publisher with ID {trafficSourceDto.PublisherId} not found");
             }
@@ -87,20 +84,20 @@ namespace Application.Services
             trafficSource.AddedDate = DateOnly.FromDateTime(DateTime.UtcNow);
             trafficSource.IsActive = trafficSourceDto.IsActive ?? true;
 
-            var createdTrafficSource = await _trafficSourceRepository.CreateAsync(trafficSource);
+            var createdTrafficSource = await _unitOfWork.TrafficSources.CreateAsync(trafficSource);
             return _mapper.Map<TrafficSourceDto>(createdTrafficSource);
         }
 
         public async Task<TrafficSourceDto> UpdateTrafficSourceAsync(TrafficSourceUpdateDto trafficSourceDto)
         {
-            var existingTrafficSource = await _trafficSourceRepository.GetByIdAsync(trafficSourceDto.SourceId);
+            var existingTrafficSource = await _unitOfWork.TrafficSources.GetByIdAsync(trafficSourceDto.SourceId);
             if (existingTrafficSource == null)
             {
                 throw new KeyNotFoundException($"Traffic source with ID {trafficSourceDto.SourceId} not found");
             }
 
             // Validate publisher exists if ID is provided
-            if (trafficSourceDto.PublisherId.HasValue && !await _publisherRepository.ExistsAsync(p => p.PublisherId == trafficSourceDto.PublisherId))
+            if (trafficSourceDto.PublisherId.HasValue && !await _unitOfWork.Publishers.ExistsAsync(p => p.PublisherId == trafficSourceDto.PublisherId))
             {
                 throw new KeyNotFoundException($"Publisher with ID {trafficSourceDto.PublisherId} not found");
             }
@@ -114,13 +111,13 @@ namespace Application.Services
             // Map updated properties while preserving ones we don't want to change
             _mapper.Map(trafficSourceDto, existingTrafficSource);
 
-            await _trafficSourceRepository.UpdateAsync(existingTrafficSource);
+            await _unitOfWork.TrafficSources.UpdateAsync(existingTrafficSource);
             return _mapper.Map<TrafficSourceDto>(existingTrafficSource);
         }
 
         public async Task DeleteTrafficSourceAsync(int id)
         {
-            var trafficSource = await _trafficSourceRepository.GetByIdAsync(id);
+            var trafficSource = await _unitOfWork.TrafficSources.GetByIdAsync(id);
             if (trafficSource == null)
             {
                 throw new KeyNotFoundException($"Traffic source with ID {id} not found");
@@ -132,53 +129,53 @@ namespace Application.Services
                 throw new InvalidOperationException("Cannot delete traffic source as it is used in promoted URL variants");
             }
 
-            await _trafficSourceRepository.DeleteAsync(trafficSource);
+            await _unitOfWork.TrafficSources.DeleteAsync(trafficSource);
         }
 
         public async Task<bool> ActivateTrafficSourceAsync(int id)
         {
-            var trafficSource = await _trafficSourceRepository.GetByIdAsync(id);
+            var trafficSource = await _unitOfWork.TrafficSources.GetByIdAsync(id);
             if (trafficSource == null)
             {
                 throw new KeyNotFoundException($"Traffic source with ID {id} not found");
             }
 
             trafficSource.IsActive = true;
-            await _trafficSourceRepository.UpdateAsync(trafficSource);
+            await _unitOfWork.TrafficSources.UpdateAsync(trafficSource);
             return true;
         }
 
         public async Task<bool> DeactivateTrafficSourceAsync(int id)
         {
-            var trafficSource = await _trafficSourceRepository.GetByIdAsync(id);
+            var trafficSource = await _unitOfWork.TrafficSources.GetByIdAsync(id);
             if (trafficSource == null)
             {
                 throw new KeyNotFoundException($"Traffic source with ID {id} not found");
             }
 
             trafficSource.IsActive = false;
-            await _trafficSourceRepository.UpdateAsync(trafficSource);
+            await _unitOfWork.TrafficSources.UpdateAsync(trafficSource);
             return true;
         }
 
         public async Task<bool> TrafficSourceExistsAsync(int id)
         {
-            return await _trafficSourceRepository.ExistsAsync(ts => ts.SourceId == id);
+            return await _unitOfWork.TrafficSources.ExistsAsync(ts => ts.SourceId == id);
         }
 
         public async Task<int> GetTrafficSourceCountAsync()
         {
-            return await _trafficSourceRepository.CountAsync(ts => true);
+            return await _unitOfWork.TrafficSources.CountAsync(ts => true);
         }
 
         public async Task<int> GetTrafficSourceCountByPublisherAsync(int publisherId)
         {
-            return await _trafficSourceRepository.CountAsync(ts => ts.PublisherId == publisherId);
+            return await _unitOfWork.TrafficSources.CountAsync(ts => ts.PublisherId == publisherId);
         }
 
         public async Task<IEnumerable<TrafficSourceDto>> GetActiveTrafficSourcesAsync()
         {
-            var trafficSources = await _trafficSourceRepository.GetAllAsync(ts => ts.IsActive == true);
+            var trafficSources = await _unitOfWork.TrafficSources.GetAllAsync(ts => ts.IsActive == true);
             return _mapper.Map<IEnumerable<TrafficSourceDto>>(trafficSources);
         }
 
@@ -189,7 +186,7 @@ namespace Application.Services
                 throw new ArgumentException("Type cannot be null or empty");
             }
 
-            var trafficSources = await _trafficSourceRepository.GetAllAsync(ts => ts.Type == type);
+            var trafficSources = await _unitOfWork.TrafficSources.GetAllAsync(ts => ts.Type == type);
             return _mapper.Map<IEnumerable<TrafficSourceDto>>(trafficSources);
         }
     }
