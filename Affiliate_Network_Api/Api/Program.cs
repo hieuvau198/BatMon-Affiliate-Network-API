@@ -108,8 +108,15 @@ var app = builder.Build();
 
 app.UseCors("AllowAll");
 
-// Enable Swagger UI for both development and production environments
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    c.RoutePrefix = string.Empty; // Opens Swagger at the root URL
+});
+
+
 app.UseSwagger();
+
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
