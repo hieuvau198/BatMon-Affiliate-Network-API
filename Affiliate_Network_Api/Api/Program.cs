@@ -84,7 +84,7 @@ builder.Services.AddScoped<ICampaignPolicyService, CampaignPolicyService>();
 builder.Services.AddScoped<ITrafficSourceService, TrafficSourceService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IAdvertiserUrlService, AdvertiserUrlService >();
-
+builder.Services.AddScoped<IConversionService, ConversionService>();
 #endregion
 
 #region Register Mapping DTOs
