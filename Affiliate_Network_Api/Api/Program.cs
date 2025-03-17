@@ -82,12 +82,15 @@ builder.Services.AddScoped<IPromoteService, PromoteService>();
 builder.Services.AddScoped<ICampaignPolicyService, CampaignPolicyService>();
 builder.Services.AddScoped<ITrafficSourceService, TrafficSourceService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IAdvertiserUrlService, AdvertiserUrlService >();
+
 #endregion
 
 #region Register Mapping DTOs
 builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(CampaignPolicyMappingProfile),
                                 typeof(TrafficSourceMappingProfile),
+                                typeof(AdvertiserUrlMappingProfile),
                                 typeof(CampaignMappingProfile));
 #endregion
 
