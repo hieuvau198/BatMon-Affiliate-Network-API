@@ -1,0 +1,51 @@
+@startuml
+title Publisher Registration for Campaign - Component Diagram (with API Gateway)
+
+' FRONTEND COMPONENTS
+package "Frontend (React)" {
+    [Campaign List Component]
+    [Campaign Details Component]
+    [Apply to Campaign Component]
+    [API Service Module]
+}
+
+' API GATEWAY
+package "API Gateway" {
+    [Gateway Service] 
+}
+
+' BACKEND COMPONENTS
+package "Backend (ASP.NET Core API)" {
+    [PublisherController]
+    [PublisherService]
+    [CampaignService]
+    [UnitOfWork]
+    [PublisherRepository]
+    [CampaignRepository]
+    [PublisherCampaignRepository]
+}
+
+' DATABASE COMPONENTS
+package "Database (SQL Server)" {
+    [Campaigns Table]
+    [Publishers Table]
+    [PublisherCampaigns Table]
+}
+
+' RELATIONSHIPS (WITH API GATEWAY)
+[Campaign List Component] --> [API Service Module] : Fetch campaigns
+[Campaign Details Component] --> [API Service Module] : Fetch campaign details
+[Apply to Campaign Component] --> [API Service Module] : Apply for campaign
+[API Service Module] --> [Gateway Service] : Sends API request
+
+[Gateway Service] --> [PublisherController] : Routes request if valid
+
+[PublisherController] --> [PublisherService] : Calls business logic
+[PublisherService] --> [CampaignService] : Checks campaign validity
+[PublisherService] --> [PublisherCampaignRepository] : Saves application
+[CampaignService] --> [CampaignRepository] : Fetch campaign info
+
+[PublisherCampaignRepository] --> [PublisherCampaigns Table] : Stores application
+[CampaignRepository] --> [Campaigns Table] : Retrieves campaigns
+[PublisherRepository] --> [Publishers Table] : Retrieves publishers
+@enduml

@@ -1,0 +1,79 @@
+flowchart TD
+    subgraph "Client Side"
+        U[User] --> P[Publisher's Unique URL]
+    end
+
+    subgraph "Frontend"
+        P --> R[Affiliate_Network React App]
+        R --> G[Affiliate_Network_Gateway]
+    end
+
+    subgraph "API Gateway"
+        G --> AC[Authentication Controller]
+        G --> CC[Conversion Controller]
+    end
+
+    subgraph "Affiliate_Network_Api"
+        subgraph "Controllers Layer"
+            AC
+            CC
+            PC[Publisher Controller]
+            CaC[Campaign Controller]
+            AdC[Advertiser Controller]
+            FC[Fraud Controller]
+        end
+
+        subgraph "Application Layer"
+            CC --> CS[Conversion Service]
+            PC --> PS[Publisher Service]
+            CaC --> CaS[Campaign Service]
+            AdC --> AdS[Advertiser Service]
+            FC --> FS[Fraud Service]
+            
+            CS --> |Uses| PS
+            CS --> |Uses| CaS
+            CS --> |Uses| AdS
+            CS --> |Uses| FS
+            CS --> |Uses| UOW[Unit of Work]
+        end
+
+        subgraph "Domain Layer"
+            UOW --> |Uses| IR[IRepository]
+            
+            CE[Conversion Entity]
+            PE[Publisher Entity]
+            CaE[Campaign Entity]
+            AdE[Advertiser Entity]
+            
+            CE --> PE
+            CE --> CaE
+            CE --> AdE
+        end
+
+        subgraph "Infrastructure Layer"
+            IR --> |Implements| R1[Repository]
+            R1 --> |Uses| DB[(Azure SQL Database)]
+            
+            NS[Notification Service] --> |Uses| SH[SignalR Hub]
+        end
+    end
+
+    subgraph "External Services"
+        CS --> |Verify| AP[Advertiser Platform API]
+        CS --> |Fraud Check| FC
+    end
+
+    subgraph "Notification Process"
+        CS --> |Trigger| NS
+        NS --> |Push| SH
+        SH --> |Real-time| R
+    end
+
+    style U fill:#f9f,stroke:#333,stroke-width:2px
+    style P fill:#bbf,stroke:#333,stroke-width:2px
+    style R fill:#ddf,stroke:#333,stroke-width:2px
+    style G fill:#ddf,stroke:#333,stroke-width:2px
+    style DB fill:#bfb,stroke:#333,stroke-width:2px
+    style CS fill:#ffb,stroke:#333,stroke-width:2px
+    style FS fill:#ffb,stroke:#333,stroke-width:2px
+    style AP fill:#fdd,stroke:#333,stroke-width:2px
