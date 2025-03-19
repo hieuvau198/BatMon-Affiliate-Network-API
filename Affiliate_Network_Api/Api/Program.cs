@@ -86,6 +86,7 @@ builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IAdvertiserUrlService, AdvertiserUrlService >();
 builder.Services.AddScoped<IConversionService, ConversionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 
 #endregion
 
@@ -95,6 +96,7 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(TrafficSourceMappingProfile),
                                 typeof(AdvertiserUrlMappingProfile),
                                 typeof(CampaignMappingProfile),
+                                typeof(PaymentMethodMappingProfile),
                                 typeof(PaymentMappingProfile));
 
 #endregion
