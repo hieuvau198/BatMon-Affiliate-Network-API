@@ -1,0 +1,65 @@
+sequenceDiagram
+    participant P as Publisher
+    participant UI as UI App
+    participant API as Backend API Gateway
+    participant PS as Payment Service
+    participant BS as Balance Service
+    participant VS as Verification Service
+    participant NS as Notification Service
+    participant DB as Database
+    participant VNP as VNPay External System
+    
+    Note over P,VNP: Payout Request Flow
+    
+    P->>UI: Initiate payout request
+    UI->>API: Forward payout request
+    API->>PS: Route to Payment Service
+    
+    PS->>BS: Check publisher balance
+    BS->>DB: Query balance
+    DB-->>BS: Return balance data
+    BS-->>PS: Confirm sufficient balance
+    
+    PS->>DB: Create payout request record (PENDING)
+    DB-->>PS: Confirm record created
+    PS-->>API: Return payout request ID
+    API-->>UI: Display request acknowledgment
+    UI-->>P: Show request pending status
+    
+    Note over P,VNP: Admin Approval Flow
+    
+    VS->>DB: Poll for pending requests
+    VS->>DB: Update request status (APPROVED/REJECTED)
+    DB-->>VS: Confirm status update
+    
+    alt Request Approved
+        PS->>DB: Poll for approved requests
+        
+        Note over PS,VNP: External Payment Processing
+        PS->>VNP: Initiate external payment
+        VNP-->>PS: Provide transaction details
+        
+        PS->>DB: Update with transaction ID (PROCESSING)
+        DB-->>PS: Confirm update
+        
+        VNP->>PS: Callback with payment status
+        
+        alt Payment Successful
+            PS->>DB: Update status (COMPLETED)
+            PS->>BS: Deduct balance
+            BS->>DB: Update publisher balance
+            PS->>NS: Trigger success notification
+        else Payment Failed
+            PS->>DB: Update status (FAILED)
+            PS->>NS: Trigger failure notification
+        end
+    else Request Rejected
+        VS->>NS: Trigger rejection notification
+    end
+    
+    Note over P,VNP: Notification Flow
+    
+    NS->>DB: Store notification
+    NS->>P: Send push notification
+    
+    

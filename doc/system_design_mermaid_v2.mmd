@@ -1,0 +1,90 @@
+flowchart TD
+ subgraph Users["Users"]
+        A1["Advertisers"]
+        A2["Publishers"]
+        A3["Administrators"]
+  end
+ subgraph Frontend["Frontend Layer"]
+        C["Affiliate Network Frontend<br>React SPA<br>Azure Static Web Apps"]
+  end
+ subgraph APIGateway["API Gateway"]
+        D["Affiliate Network Gateway<br>ASP.NET Web API (.NET 8.0)<br>"]
+  end
+ subgraph MainApp["Main Application Service"]
+        MainAppContainer["ASP.NET Web API<br>(.NET 8.0)"]
+        F["Campaign Service<br>Campaign Management &amp; Reporting"]
+        G["Advertiser Service<br>Advertiser Management"]
+        H["Publisher Service<br>Publisher Management"]
+        I["Fraud Detection Service<br>Fraud Prevention &amp; Detection"]
+        J["Payment Integration<br>VNPay Implementation"]
+        E["Authentication Service<br>JWT, Google OAuth"]
+        R["SignalR Hub<br>Real-time Updates"]
+  end
+ subgraph AdminApp["Admin Management Application"]
+        AdminAppContainer["ASP.NET Web API<br>(.NET 8.0)"]
+        S["Admin Dashboard<br>System Overview"]
+        T["System Configuration<br>Settings Management"]
+        U["User Management<br>Role-based Access Control"]
+  end
+ subgraph BackendServices["Backend Services"]
+        MainApp
+        AdminApp
+  end
+ subgraph DataLayer["Data Layer"]
+        K[("Azure SQL Database<br>Primary Data Store")]
+        L[("Redis Cache<br>Performance Cache<br>Session State")]
+  end
+ subgraph ExternalSystems["External Systems"]
+        O["VNPay Payment Gateway<br>Payment Processing"]
+        P["Google Authentication<br>OAuth 2.0"]
+  end
+ subgraph Monitoring["Monitoring & Logging"]
+        Q["Azure Application Insights<br>Performance &amp; Error Tracking"]
+        V["Azure Log Analytics<br>"]
+  end
+    Users --> C
+    C -- HTTPS/RESTful APIs --> D
+    D --> MainApp & AdminApp
+    E --> P
+    J --> O
+    MainApp -- Entity Framework Core --> K
+    AdminApp -- Entity Framework Core --> K
+    MainApp -- "StackExchange.Redis" --> L
+    R -- WebSockets --> C
+    MainApp --> Q & V
+    AdminApp --> Q & V
+    MainAppContainer --- F & G & H & I & J & E & R
+    AdminAppContainer --- S & T & U
+
+     C:::frontend
+     D:::gateway
+     MainAppContainer:::backend
+     F:::backend
+     G:::backend
+     H:::backend
+     I:::backend
+     J:::backend
+     E:::backend
+     R:::backend
+     AdminAppContainer:::backend
+     S:::backend
+     T:::backend
+     U:::backend
+     MainApp:::backend
+     AdminApp:::backend
+     K:::data
+     L:::data
+     O:::external
+     P:::external
+     Q:::monitoring
+     V:::monitoring
+     Users:::users
+    classDef users fill:#f9d5e5,stroke:#333,stroke-width:1px
+    classDef frontend fill:#eeeeee,stroke:#333,stroke-width:1px
+    classDef gateway fill:#b5ead7,stroke:#333,stroke-width:1px
+    classDef backend fill:#c7ceea,stroke:#333,stroke-width:1px
+    classDef data fill:#e2f0cb,stroke:#333,stroke-width:1px
+    classDef external fill:#ffdac1,stroke:#333,stroke-width:1px
+    classDef monitoring fill:#ff9aa2,stroke:#333,stroke-width:1px
+
+
