@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Application.Contracts.PaymentRequest
+namespace Application.Contracts.PayoutRequest
 {
-    public class PaymentRequestDto
+    public class PayoutRequestDto
     {
         public int RequestId { get; set; }
         public int? PublisherId { get; set; }
@@ -16,14 +16,14 @@ namespace Application.Contracts.PaymentRequest
         public string? CurrencyName { get; set; }
     }
 
-    public class PaymentRequestCreateDto
+    public class PayoutRequestCreateDto
     {
         public int? PublisherId { get; set; }
         public decimal? Amount { get; set; }
         public string CurrencyCode { get; set; } = null!;
     }
 
-    public class PaymentRequestUpdateDto
+    public class PayoutRequestUpdateDto
     {
         public int RequestId { get; set; }
         public string? Status { get; set; }
@@ -31,7 +31,7 @@ namespace Application.Contracts.PaymentRequest
         public int? ReviewedBy { get; set; }
     }
 
-    public class PaymentRequestFilterDto
+    public class PayoutRequestFilterDto
     {
         public int? PublisherId { get; set; }
         public string? Status { get; set; }
