@@ -1,90 +1,61 @@
 flowchart TD
- subgraph GH["GitHub"]
+  subgraph GH["GitHub"]
         GHR["GitHub Repositories"]
         GHA["GitHub Actions\nCI/CD Pipelines"]
   end
- subgraph FE["Frontend"]
+  subgraph WEB["Web"]
         SWA["Azure Static Web App"]
-        React["Affiliate_Network<br>React Frontend"]
+        WebFrontend["Web Frontend"]
   end
- subgraph GW["API Gateway"]
+  subgraph GW["API Gateway"]
         AppService1["Azure App Service"]
-        Gateway["Affiliate_Network_Gateway<br>ASP.NET Web API"]
+        APIGateway["API Gateway"]
   end
- subgraph CoreServices["Core Services"]
+  subgraph APP["Application"]
+    subgraph CoreServices["Core Services"]
         AuthService["Auth Service"]
         CampaignService["Campaign Service"]
-        AdvertiserService["Advertiser Service"]
-        PublisherService["Publisher Service"]
         FraudService["Fraud Service"]
-        ManagementService["Management Service"]
+        PaymentService["Payment Service"]
+    end
+    AppService2["Azure App Service"]
   end
- subgraph Integration["Integrations"]
-        VNPay["VNPay Payment"]
-        GoogleAuth["Google Auth"]
-  end
- subgraph API["API Layer"]
-        AppService2["Azure App Service"]
-        APIApp["Affiliate_Network_Api"]
-        CoreServices
-        Integration
-  end
- subgraph Data["Data Layer"]
+  subgraph Data["Data Layer"]
         SQLDB["Azure SQL Database"]
-        Redis["Azure Redis Cache"]
         Storage["Firebase Storage"]
   end
- subgraph Support["Supporting Services"]
-        Monitor["Azure Monitor"]
-        KeyVault["Azure Key Vault"]
-        Identity["Azure AD"]
-  end
- subgraph External["External Services"]
+  subgraph External["External Services"]
         VNPayGateway["VNPay Payment System"]
         GoogleAuthAPI["Google Authentication API"]
   end
     GHR --> GHA
     GHA --> SWA & AppService1 & AppService2
-    SWA --> React
-    React --> Gateway
-    AppService1 --> Gateway
-    Gateway --> APIApp & Monitor
-    AppService2 --> APIApp
-    APIApp --> CoreServices & Integration & Monitor
-    CoreServices --> SQLDB & Redis & Storage & KeyVault
-    AuthService --> GoogleAuth
-    VNPay --> VNPayGateway
-    GoogleAuth --> GoogleAuthAPI
+    SWA --> WebFrontend
+    WebFrontend --> APIGateway
+    AppService1 --> APIGateway
+    APIGateway --> CoreServices
+    AppService2 --> CoreServices
+    CoreServices --> SQLDB & Storage
+    AuthService --> GoogleAuthAPI
+    PaymentService --> VNPayGateway
 
-     GHR:::github
-     GHA:::github
-     SWA:::azure
-     React:::app
-     AppService1:::azure
-     Gateway:::app
-     AuthService:::service
-     CampaignService:::service
-     AdvertiserService:::service
-     PublisherService:::service
-     FraudService:::service
-     ManagementService:::service
-     VNPay:::service
-     GoogleAuth:::service
-     AppService2:::azure
-     APIApp:::app
-     SQLDB:::azure
-     Redis:::azure
-     Storage:::azure
-     Monitor:::azure
-     KeyVault:::azure
-     Identity:::azure
-     VNPayGateway:::ext
-     GoogleAuthAPI:::ext
+    GHR:::github
+    GHA:::github
+    SWA:::azure
+    WebFrontend:::app
+    AppService1:::azure
+    APIGateway:::app
+    AuthService:::service
+    CampaignService:::service
+    FraudService:::service
+    PaymentService:::service
+    AppService2:::azure
+    SQLDB:::azure
+    Storage:::azure
+    VNPayGateway:::ext
+    GoogleAuthAPI:::ext
     classDef azure fill:#0078D7,color:white,stroke:#0078D7,stroke-width:2px
     classDef app fill:#00A88F,color:white,stroke:#00A88F,stroke-width:2px
-    classDef db fill:#FFB900,color:white,stroke:#FFB900,stroke-width:2px
     classDef ext fill:#D83B01,color:white,stroke:#D83B01,stroke-width:2px
     classDef github fill:#333333,color:white,stroke:#333333,stroke-width:2px
     classDef service fill:#8661C5,color:white,stroke:#8661C5,stroke-width:2px
-
-
