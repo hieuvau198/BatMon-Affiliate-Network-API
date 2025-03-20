@@ -92,6 +92,7 @@ builder.Services.AddScoped<IPayoutRuleService, PayoutRuleService>();
 
 builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 builder.Services.AddScoped<IFraudReportService, FraudReportService>();
+builder.Services.AddScoped<IFraudCaseService,FraudCaseService>();
 #endregion
 
 #region Register Mapping DTOs
