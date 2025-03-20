@@ -95,6 +95,9 @@ builder.Services.AddScoped<IWithdrawalRequestService, WithdrawalRequestService>(
 builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 builder.Services.AddScoped<IFraudReportService, FraudReportService>();
 builder.Services.AddScoped<IFraudCaseService,FraudCaseService>();
+builder.Services.AddScoped<IFraudTypeService,FraudTypeService>();
+builder.Services.AddScoped<IDepositRequestService, DepositRequestService>();
+builder.Services.AddScoped<IPublisherBalanceService, PublisherBalanceService>();
 #endregion
 
 #region Register Mapping DTOs
