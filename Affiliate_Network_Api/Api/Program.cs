@@ -90,6 +90,7 @@ builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 builder.Services.AddScoped<IPayoutRequestService, PayoutRequestService>();
 builder.Services.AddScoped<IPayoutRuleService, PayoutRuleService>();
 
+builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 
 #endregion
 
