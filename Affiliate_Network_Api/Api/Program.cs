@@ -86,6 +86,7 @@ builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IAdvertiserUrlService, AdvertiserUrlService >();
 builder.Services.AddScoped<IConversionService, ConversionService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 
 #endregion
 
