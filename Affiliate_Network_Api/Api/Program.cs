@@ -93,7 +93,7 @@ builder.Services.AddScoped<IPromoteService, PromoteService>();
 
 
 builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
-
+builder.Services.AddScoped<IFraudReportService, FraudReportService>();
 #endregion
 
 #region Register Mapping DTOs
