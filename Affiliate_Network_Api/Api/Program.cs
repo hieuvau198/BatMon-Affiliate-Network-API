@@ -91,9 +91,7 @@ builder.Services.AddScoped<IPayoutRequestService, PayoutRequestService>();
 builder.Services.AddScoped<IPayoutRuleService, PayoutRuleService>();
 builder.Services.AddScoped<IPromoteService, PromoteService>();
 builder.Services.AddScoped<IPromoteUrlvariantService, PromoteUrlvariantService>();
-
-
-
+builder.Services.AddScoped<IWithdrawalRequestService, WithdrawalRequestService>();
 builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 builder.Services.AddScoped<IFraudReportService, FraudReportService>();
 builder.Services.AddScoped<IFraudCaseService,FraudCaseService>();
@@ -109,6 +107,7 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(PayoutRequestMappingProfile),
                                 typeof(PayoutRuleMappingProfile),
                                 typeof(PromoteMappingProfile),
+                                typeof(WithdrawalRequestMappingProfile),
                                 typeof(PromoteUrlvariantsMappingProfile),
                                 typeof(PaymentMappingProfile));
 
