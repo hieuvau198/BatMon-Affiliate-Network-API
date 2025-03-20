@@ -99,6 +99,7 @@ builder.Services.AddScoped<IFraudTypeService,FraudTypeService>();
 builder.Services.AddScoped<IDepositRequestService, DepositRequestService>();
 builder.Services.AddScoped<IPublisherBalanceService, PublisherBalanceService>();
 builder.Services.AddScoped<ICampaignAdvertiserUrlService, CampaignAdvertiserUrlService>();
+builder.Services.AddScoped<ICampaignConversionTypeService, CampaignConversionTypeService>();
 
 #endregion
 
@@ -115,6 +116,7 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(WithdrawalRequestMappingProfile),
                                 typeof(PromoteUrlvariantsMappingProfile),
                                 typeof(CampaignAdvertiserUrlMappingProfile),
+                                typeof(CampaignConversionTypeMappingProfile),
                                 typeof(PaymentMappingProfile));
 
 #endregion
