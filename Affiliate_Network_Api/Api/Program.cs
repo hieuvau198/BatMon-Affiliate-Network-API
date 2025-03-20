@@ -89,6 +89,8 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 builder.Services.AddScoped<IPayoutRequestService, PayoutRequestService>();
 builder.Services.AddScoped<IPayoutRuleService, PayoutRuleService>();
+builder.Services.AddScoped<IPromoteService, PromoteService>();
+
 
 builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 
@@ -103,6 +105,7 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(PaymentMethodMappingProfile),
                                 typeof(PayoutRequestMappingProfile),
                                 typeof(PayoutRuleMappingProfile),
+                                typeof(PromoteMappingProfile),
                                 typeof(PaymentMappingProfile));
 
 #endregion
