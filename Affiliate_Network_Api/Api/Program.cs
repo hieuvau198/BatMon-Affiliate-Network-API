@@ -98,6 +98,8 @@ builder.Services.AddScoped<IFraudCaseService,FraudCaseService>();
 builder.Services.AddScoped<IFraudTypeService,FraudTypeService>();
 builder.Services.AddScoped<IDepositRequestService, DepositRequestService>();
 builder.Services.AddScoped<IPublisherBalanceService, PublisherBalanceService>();
+builder.Services.AddScoped<ICampaignAdvertiserUrlService, CampaignAdvertiserUrlService>();
+
 #endregion
 
 #region Register Mapping DTOs
@@ -112,6 +114,7 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(PromoteMappingProfile),
                                 typeof(WithdrawalRequestMappingProfile),
                                 typeof(PromoteUrlvariantsMappingProfile),
+                                typeof(CampaignAdvertiserUrlMappingProfile),
                                 typeof(PaymentMappingProfile));
 
 #endregion
