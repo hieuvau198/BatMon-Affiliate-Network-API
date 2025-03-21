@@ -100,6 +100,7 @@ builder.Services.AddScoped<IDepositRequestService, DepositRequestService>();
 builder.Services.AddScoped<IPublisherBalanceService, PublisherBalanceService>();
 builder.Services.AddScoped<ICampaignAdvertiserUrlService, CampaignAdvertiserUrlService>();
 builder.Services.AddScoped<ICampaignConversionTypeService, CampaignConversionTypeService>();
+builder.Services.AddScoped<ICampaignPublisherCommissionService, CampaignPublisherCommissionService>();
 
 #endregion
 
@@ -117,6 +118,7 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(PromoteUrlvariantsMappingProfile),
                                 typeof(CampaignAdvertiserUrlMappingProfile),
                                 typeof(CampaignConversionTypeMappingProfile),
+                                typeof(CampaignPublisherCommissionMappingProfile),
                                 typeof(PaymentMappingProfile));
 
 #endregion
