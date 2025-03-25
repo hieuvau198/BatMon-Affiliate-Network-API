@@ -23,6 +23,13 @@ namespace Api.Controllers
             return Ok(campaigns);
         }
 
+        [HttpGet("pending")]
+        public async Task<ActionResult<IEnumerable<CampaignDto>>> GetPendingCampaigns()
+        {
+            var campaigns = await _campaignService.GetPendingCampaignsAsync();
+            return Ok(campaigns);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<CampaignDto>> GetCampaignById(int id, [FromQuery] bool includeRelated = false)
         {
