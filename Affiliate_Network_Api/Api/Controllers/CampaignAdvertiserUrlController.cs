@@ -51,6 +51,19 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("campaign/{campaignId}")]
+        public async Task<ActionResult<IEnumerable<CampaignAdvertiserUrlDto>>> GetCampaignAdvertiserUrlsByCampaignId(int campaignId)
+        {
+            try
+            {
+                var campaignAdvertiserUrls = await _campaignAdvertiserUrlService.GetCampaignAdvertiserUrlsByCampaignIdAsync(campaignId);
+                return Ok(campaignAdvertiserUrls);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving campaign advertiser URLs for campaign {campaignId}: {ex.Message}");
+            }
+        }
 
         [HttpGet("advertiserUrl/{advertiserUrlId}")]
         public async Task<ActionResult<IEnumerable<CampaignAdvertiserUrlDto>>> GetCampaignAdvertiserUrlsByAdvertiserUrlId(int advertiserUrlId)
@@ -107,7 +120,6 @@ namespace Api.Controllers
                 return StatusCode(500, $"An error occurred while retrieving the count: {ex.Message}");
             }
         }
-
 
         [HttpPost]
         public async Task<ActionResult<CampaignAdvertiserUrlDto>> CreateCampaignAdvertiserUrl([FromBody] CampaignAdvertiserUrlCreateDto campaignAdvertiserUrlDto)
