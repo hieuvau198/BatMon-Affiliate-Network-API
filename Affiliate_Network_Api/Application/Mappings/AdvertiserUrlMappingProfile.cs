@@ -22,6 +22,9 @@ namespace Application.Mappings
             // Map from Update DTO to Entity
             CreateMap<AdvertiserUrlUpdateDto, AdvertiserUrl>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
         }
+
     }
 }

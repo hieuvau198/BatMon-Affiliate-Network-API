@@ -17,7 +17,7 @@ public partial class Promote
 
     public DateOnly? JoinDate { get; set; }
 
-    public bool? IsApproved { get; set; }
+    public bool? IsApproved { get; set; } 
 
     public string? Status { get; set; }
 

@@ -12,7 +12,8 @@ namespace Application.Mappings
                 .ForMember(dest => dest.PublisherName, opt => opt.MapFrom(src => src.Publisher != null ? src.Publisher.Username : null))
                 .ForMember(dest => dest.CampaignName, opt => opt.MapFrom(src => src.Campaign != null ? src.Campaign.Name : null));
 
-            CreateMap<PromoteCreateDto, Promote>();
+            CreateMap<PromoteCreateDto, Promote>()
+                .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => false)); // Explicitly map to false
 
             CreateMap<PromoteUpdateDto, Promote>();
         }

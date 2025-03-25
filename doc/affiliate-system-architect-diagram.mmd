@@ -1,0 +1,64 @@
+flowchart TD
+    subgraph Users["Users"]
+        A1["Advertisers"]
+        A2["Publishers"]
+        A3["Administrators"]
+    end
+    
+    subgraph Frontend["Frontend Layer (Client)"]
+        C["Affiliate Network Frontend
+        React SPA"]
+    end
+    
+    subgraph Backend["Backend System (Server)"]
+        subgraph PresentationTier["Presentation Tier"]
+            D["API Controllers
+            ASP.NET Web API"]
+        end
+        
+        subgraph BusinessLogicTier["Business Logic Tier"]
+            E["Application Services"]
+            F["DTOs"]
+        end
+        
+        subgraph DomainTier["Domain Tier"]
+            G["Entities"]
+            G2["Interfaces"]
+        end
+        
+        
+        subgraph DataAccessTier["Data Access Tier"]
+            H["Persistence"]
+            H2["Repository"]
+            H3["UnitOfWork"]
+        end
+    end
+    
+    subgraph DataLayer["Data Layer"]
+        K[("SQL Server Database")]
+        K2[("Firebase Storage")]
+    end
+
+    Users --> C
+    C -- HTTP Requests --> PresentationTier
+    PresentationTier -- Calls --> BusinessLogicTier
+    BusinessLogicTier -- Uses --> DomainTier
+    DataAccessTier -- Implement --> DomainTier
+    DataAccessTier -- Query Data --> DataLayer
+    
+    %% Styling
+    C:::frontend
+    PresentationTier:::presentation
+    BusinessLogicTier:::business
+    DomainTier:::domain
+    DataAccessTier:::dataaccess
+    K:::database
+    Users:::users
+    
+    classDef users fill:#f9d5e5,stroke:#333
+    classDef frontend fill:#e3f2fd,stroke:#333
+    classDef presentation fill:#bbdefb,stroke:#333
+    classDef business fill:#90caf9,stroke:#333
+    classDef domain fill:#64b5f6,stroke:#333
+    classDef dataaccess fill:#42a5f5,stroke:#333
+    classDef database fill:#1e88e5,stroke:#333,color:white

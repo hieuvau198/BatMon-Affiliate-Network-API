@@ -1,65 +1,81 @@
 sequenceDiagram
-    participant P as Publisher
-    participant UI as UI App
-    participant API as Backend API Gateway
-    participant PS as Payment Service
-    participant BS as Balance Service
-    participant VS as Verification Service
-    participant NS as Notification Service
-    participant DB as Database
-    participant VNP as VNPay External System
-    
-    Note over P,VNP: Payout Request Flow
-    
-    P->>UI: Initiate payout request
-    UI->>API: Forward payout request
-    API->>PS: Route to Payment Service
-    
-    PS->>BS: Check publisher balance
-    BS->>DB: Query balance
-    DB-->>BS: Return balance data
-    BS-->>PS: Confirm sufficient balance
-    
-    PS->>DB: Create payout request record (PENDING)
-    DB-->>PS: Confirm record created
-    PS-->>API: Return payout request ID
-    API-->>UI: Display request acknowledgment
-    UI-->>P: Show request pending status
-    
-    Note over P,VNP: Admin Approval Flow
-    
-    VS->>DB: Poll for pending requests
-    VS->>DB: Update request status (APPROVED/REJECTED)
-    DB-->>VS: Confirm status update
-    
-    alt Request Approved
-        PS->>DB: Poll for approved requests
-        
-        Note over PS,VNP: External Payment Processing
-        PS->>VNP: Initiate external payment
-        VNP-->>PS: Provide transaction details
-        
-        PS->>DB: Update with transaction ID (PROCESSING)
-        DB-->>PS: Confirm update
-        
-        VNP->>PS: Callback with payment status
-        
-        alt Payment Successful
-            PS->>DB: Update status (COMPLETED)
-            PS->>BS: Deduct balance
-            BS->>DB: Update publisher balance
-            PS->>NS: Trigger success notification
-        else Payment Failed
-            PS->>DB: Update status (FAILED)
-            PS->>NS: Trigger failure notification
-        end
-    else Request Rejected
-        VS->>NS: Trigger rejection notification
+    box "System"
+        participant P as Publisher
+        participant UI as UI App
+        participant API as Backend API Gateway
+        participant PS as Payment Service
+        participant BS as Balance Service
+        participant VS as Verification Service
+        participant NS as Notification Service
+        participant DB as Database
     end
-    
-    Note over P,VNP: Notification Flow
-    
-    NS->>DB: Store notification
-    NS->>P: Send push notification
-    
-    
+    box "External"
+        participant VNP as VNPay External System
+    end
+
+    Note left of P: Payout Request Flow
+    P->>UI: initiatePayout(amount, details)
+    activate UI
+    UI->>API: submitPayoutRequest(amount, details)
+    activate API
+    API->>PS: processPayout(amount, details)
+    activate PS
+
+    PS->>BS: checkBalance(publisherId)
+    activate BS
+    BS->>DB: queryBalance(publisherId)
+    DB-->>BS: balance
+    BS-->>PS: balanceResponse(sufficient)
+    deactivate BS
+
+    PS->>DB: createPayoutRecord(publisherId, amount, "PENDING")
+    DB-->>PS: payoutRecordId
+    PS-->>API: payoutRequestResponse(requestId)
+    deactivate PS
+    API-->>UI: acknowledgment(requestId)
+    deactivate API
+    UI->>UI: displayStatus("Request pending")
+    deactivate UI
+
+    Note right of VS: Admin Approval Flow
+    loop Poll every 5 minutes
+        VS->>DB: getPendingRequests()
+        DB-->>VS: pendingRequests[]
+    end
+
+    alt Request Approved
+        VS->>DB: updateStatus(requestId, "APPROVED")
+        activate DB
+        DB-->>VS: confirmation
+        deactivate DB
+
+        loop Poll every minute
+            PS->>DB: getApprovedRequests()
+            DB-->>PS: approvedRequests[]
+        end
+
+        PS->>VNP: initiateTransfer(amount, accountDetails)
+        activate VNP
+        VNP-->>PS: transactionReceipt(txnId, status)
+        deactivate VNP
+
+        PS->>DB: updateTransaction(requestId, txnId, "PROCESSING")
+        DB-->>PS: confirmation
+
+        VNP->>PS: paymentCallback(txnId, "SUCCESS")
+        activate PS
+        PS->>DB: updateStatus(requestId, "COMPLETED")
+        PS->>BS: deductBalance(publisherId, amount)
+        activate BS
+        BS->>DB: updateBalance(publisherId, newBalance)
+        deactivate BS
+        PS->>NS: notifySuccess(publisherId, requestId)
+        deactivate PS
+    else Request Rejected
+        VS->>DB: updateStatus(requestId, "REJECTED")
+        VS->>NS: notifyRejection(publisherId, requestId)
+    end
+
+    Note over NS: Notification Flow
+    NS->>DB: storeNotification(publisherId, message)
+    NS->>UI: pushNotification(message)  # Valid async notification

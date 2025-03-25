@@ -90,39 +90,42 @@ namespace Application.Services
             return _mapper.Map<IEnumerable<PromoteDto>>(promotes);
         }
 
-        public async Task<PromoteDto> CreatePromoteAsync(PromoteCreateDto promoteDto)
-        {
-            // Validate publisher exists if ID is provided
-            if (promoteDto.PublisherId.HasValue && !await _unitOfWork.Publishers.ExistsAsync(p => p.PublisherId == promoteDto.PublisherId))
-            {
-                throw new KeyNotFoundException($"Publisher with ID {promoteDto.PublisherId} not found");
-            }
+public async Task<PromoteDto> CreatePromoteAsync(PromoteCreateDto promoteDto)
+{
+    // Validate publisher exists if ID is provided
+    if (promoteDto.PublisherId.HasValue && !await _unitOfWork.Publishers.ExistsAsync(p => p.PublisherId == promoteDto.PublisherId))
+    {
+        throw new KeyNotFoundException($"Publisher with ID {promoteDto.PublisherId} not found");
+    }
 
-            // Validate campaign exists if ID is provided
-            if (promoteDto.CampaignId.HasValue && !await _unitOfWork.Campaigns.ExistsAsync(c => c.CampaignId == promoteDto.CampaignId))
-            {
-                throw new KeyNotFoundException($"Campaign with ID {promoteDto.CampaignId} not found");
-            }
+    // Validate campaign exists if ID is provided
+    if (promoteDto.CampaignId.HasValue && !await _unitOfWork.Campaigns.ExistsAsync(c => c.CampaignId == promoteDto.CampaignId))
+    {
+        throw new KeyNotFoundException($"Campaign with ID {promoteDto.CampaignId} not found");
+    }
 
-            // Validate campaign advertiser URL exists if ID is provided
-            if (promoteDto.CampaignAdvertiserUrlId.HasValue && !await _unitOfWork.CampaignAdvertiserUrls.ExistsAsync(cau => cau.CampaignUrlId == promoteDto.CampaignAdvertiserUrlId))
-            {
-                throw new KeyNotFoundException($"Campaign Advertiser URL with ID {promoteDto.CampaignAdvertiserUrlId} not found");
-            }
+    // Validate campaign advertiser URL exists if ID is provided
+    if (promoteDto.CampaignAdvertiserUrlId.HasValue && !await _unitOfWork.CampaignAdvertiserUrls.ExistsAsync(cau => cau.CampaignUrlId == promoteDto.CampaignAdvertiserUrlId))
+    {
+        throw new KeyNotFoundException($"Campaign Advertiser URL with ID {promoteDto.CampaignAdvertiserUrlId} not found");
+    }
 
-            var promote = _mapper.Map<Promote>(promoteDto);
+    // Override IsApproved to ensure it's always false
+    promoteDto.IsApproved = false;
 
-            // Set default values
-            promote.JoinDate = DateOnly.FromDateTime(DateTime.UtcNow);
-            promote.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
-            promote.IsApproved = promoteDto.IsApproved ?? false;
-            promote.Status = promoteDto.Status ?? "Pending";
+    var promote = _mapper.Map<Promote>(promoteDto);
 
-            var createdPromote = await _unitOfWork.Promotes.CreateAsync(promote);
-            await _unitOfWork.SaveChangesAsync();
+    // Set default values
+    promote.JoinDate = DateOnly.FromDateTime(DateTime.UtcNow);
+    promote.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
+    promote.IsApproved = false; // Explicit double-check
+    promote.Status = promoteDto.Status ?? "Pending";
 
-            return _mapper.Map<PromoteDto>(createdPromote);
-        }
+    var createdPromote = await _unitOfWork.Promotes.CreateAsync(promote);
+    await _unitOfWork.SaveChangesAsync();
+
+    return _mapper.Map<PromoteDto>(createdPromote);
+}
 
         public async Task<PromoteDto> UpdatePromoteAsync(PromoteUpdateDto promoteDto)
         {

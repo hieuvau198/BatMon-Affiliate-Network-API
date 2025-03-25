@@ -31,6 +31,8 @@ namespace Application.Mappings
 
             CreateMap<AdvertiserUrl, AdvertiserUrlMinimalDto>()
                 .ForMember(dest => dest.UrlId, opt => opt.MapFrom(src => src.UrlId));
+
+
         }
     }
 }
