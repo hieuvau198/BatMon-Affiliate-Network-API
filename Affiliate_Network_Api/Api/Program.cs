@@ -91,14 +91,17 @@ builder.Services.AddScoped<IPayoutRequestService, PayoutRequestService>();
 builder.Services.AddScoped<IPayoutRuleService, PayoutRuleService>();
 builder.Services.AddScoped<IPromoteService, PromoteService>();
 builder.Services.AddScoped<IPromoteUrlvariantService, PromoteUrlvariantService>();
-
-
-
+builder.Services.AddScoped<IWithdrawalRequestService, WithdrawalRequestService>();
 builder.Services.AddScoped<IConversionTypeService, ConversionTypeService>();
 builder.Services.AddScoped<IFraudReportService, FraudReportService>();
 builder.Services.AddScoped<IFraudCaseService,FraudCaseService>();
 builder.Services.AddScoped<IFraudTypeService,FraudTypeService>();
 builder.Services.AddScoped<IDepositRequestService, DepositRequestService>();
+builder.Services.AddScoped<IPublisherBalanceService, PublisherBalanceService>();
+builder.Services.AddScoped<ICampaignAdvertiserUrlService, CampaignAdvertiserUrlService>();
+builder.Services.AddScoped<ICampaignConversionTypeService, CampaignConversionTypeService>();
+builder.Services.AddScoped<ICampaignPublisherCommissionService, CampaignPublisherCommissionService>();
+
 #endregion
 
 #region Register Mapping DTOs
@@ -111,7 +114,11 @@ builder.Services.AddAutoMapper(typeof(AdvertiserMappingProfile),
                                 typeof(PayoutRequestMappingProfile),
                                 typeof(PayoutRuleMappingProfile),
                                 typeof(PromoteMappingProfile),
+                                typeof(WithdrawalRequestMappingProfile),
                                 typeof(PromoteUrlvariantsMappingProfile),
+                                typeof(CampaignAdvertiserUrlMappingProfile),
+                                typeof(CampaignConversionTypeMappingProfile),
+                                typeof(CampaignPublisherCommissionMappingProfile),
                                 typeof(PaymentMappingProfile));
 
 #endregion

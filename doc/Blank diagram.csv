@@ -1,0 +1,99 @@
+Id,Name,Shape Library,Page ID,Contained By,Group,Line Source,Line Destination,Source Arrow,Destination Arrow,Status,Text Area 1,Text Area 2,Comments
+1,Document,,,,,,,,,Draft,Blank diagram,,
+2,Page,,,,,,,,,,Page 1,,
+3,Page,,,,,,,,,,Higher level UML deployment diagram,,
+4,Node,UML,3,,,,,,,," «device»
+Web Server",,
+5,Node,UML,3,,,,,,,," «device»
+Application Server",,
+6,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> Application.dll,,
+7,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> Domain.dll,,
+8,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> Infrastructure.dll,,
+9,Node,UML,3,,,,,,,," «device»
+Gateway Server",,
+10,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> React build,,
+11,Node,UML,3,,,,,,,," «device»
+Database Server",,
+12,Node,UML,3,,,,,,,,Clients,,
+13,Node,UML,3,,,,,,,,Desktop,,
+14,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> Api.dll,,
+15,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> Gateway.dll,,
+16,Node,UML,3,,,,,,,,Mobile,,
+17,Artifact,Enterprise Architecture,3,,,,,,,,<<artifact>> AffiliateDb,,
+18,Line,,3,,,12,4,None,None,,"«protocol»
+HTTPS",,
+19,Line,,3,,,5,,None,None,,"«protocol»
+TCP/IP",,
+20,Line,,3,,,9,4,None,None,,"«protocol»
+HTTPS",,
+21,Line,,3,,,9,,None,None,,"«protocol»
+HTTPS",,
+22,Page,,,,,,,,,,Lower level UML deployment diagram,,
+23,Node,UML,22,,,,,,,," «device»
+PC/Laptop",,
+24,Node,UML,22,,,,,,,," «OS»
+Windows/MacOS/Linux",,
+25,Node,UML,22,,,,,,,," «execution environment»
+Browser",,
+26,Object,UML,22,,,,,,,," «artifact»
+affiliate.azurestaticapps.net",,
+27,Component,UML,22,,,,,,,,"«component»
+Affiliate Web ",,
+28,Node,UML,22,,,,,,,," «device»
+Application Server",,
+29,Node,UML,22,,,,,,,," «OS»
+SUSE Linux Enterprise 15",,
+30,Node,UML,22,,,,,,,," «execution environment»
+Node.js",,
+31,Component,UML,22,,,,,,,,"«component»
+Products",,
+32,Node,UML,22,,,,,,,," «device»
+Database Server",,
+33,Node,UML,22,,,,,,,," «OS»
+W",,
+34,Component,UML,22,,,,,,,,"«component»
+Shopping Cart",,
+35,Component,UML,22,,,,,,,,"«component»
+User Account",,
+36,Component,UML,22,,,,,,,,"«component»
+Orders",,
+37,Node,UML,22,,,,,,,," «execution environment»
+SQL Server",,
+38,Component,UML,22,,,,,,,,"«collection»
+Campaigns",,
+39,Component,UML,22,,,,,,,,"«collection»
+Conversions",,
+40,Component,UML,22,,,,,,,,"«collection»
+Publishers",,
+41,Button,UI Mockups,22,,,,,,,,"View higher level overview  (Hold Shift + ⌘ or Ctrl, then click)",,
+42,Block,Standard,22,,63,,,,,,Blank diagram - lower level,,
+43,Block,Standard,22,,63,,,,,,"Duong Minh Nhat (K18 HCM)  |  March 21, 2025",,
+44,User Image,User Images,22,,,,,,,,,,
+45,Rectangle Container,Flowchart Shapes/Containers,22,,64,,,,,,,,
+46,Block,Standard,22,45,64,,,,,,Learn how to edit this template,,
+47,Block,Standard,22,45,64,,,,,,"To format shapes as you'd like, click on a shape and then click ""Shape Options""     , ""Fill Color""      , and ""Line Color""    on the properties bar at the top of the canvas. 
+Hover over a shape and click on any red circle    to add lines.
+Add text to a line by double-clicking the text or anywhere on the line and typing.
+To format lines, click on a line use the properties bar at the top of the canvas.
+
+Pro tip: This UML deployment diagram models a very high-level overview of a basic e-commerce web application with the option to toggle to a lower level overview via the ""Toggle Overview"" blue button. ",,
+48,Block,Standard,22,45,64,,,,,,"Tutorials (Hold Shift + ⌘ or Ctrl, then click)",,
+49,SVGPathBlock2,,22,45,64,,,,,,,,
+50,Circle,Geometric Shapes,22,45,64,,,,,,,,
+51,SVGPathBlock2,,22,45,65,,,,,,,,
+52,SVGPathBlock2,,22,45,65,,,,,,,,
+53,User Image,User Images,22,45,64,,,,,,,,
+54,Button,UI Mockups,22,45,64,,,,,,Watch Lucidchart basic tutorials,,
+55,Button,UI Mockups,22,45,64,,,,,,Read about UML diagram templates and examples,,
+56,Button,UI Mockups,22,45,64,,,,,,Visit our UML deployment  diagram page,,
+57,Button,UI Mockups,22,45,64,,,,,,"Create your own diagram (Hold Shift + ⌘ or Ctrl, then click)",,
+58,User Image,User Images,22,45,64,,,,,,,,
+59,Line,,22,,,26,27,None,Arrow,,   , «manifests»,
+60,Line,,22,,,,30,None,None,,"«protocol»
+HTTPS",,
+61,Line,,22,,,30,32,None,None,,"«protocol»
+TCP/IP, Mongoose",,
+62,Line,,22,,63,42,42,None,None,,,,
+63,Group 1,,22,,,,,,,,,,
+64,Group 2,,22,,,,,,,,,,
+65,Group 3,,22,,64,,,,,,,,
