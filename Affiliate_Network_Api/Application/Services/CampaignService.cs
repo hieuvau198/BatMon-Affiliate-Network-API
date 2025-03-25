@@ -66,7 +66,7 @@ namespace Application.Services
             // Set default values
             campaign.CreatedDate = DateOnly.FromDateTime(DateTime.UtcNow);
             campaign.LastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
-            campaign.Status = "Draft"; // Default status
+            campaign.Status = "Pending"; // Default status
 
             var createdCampaign = await _unitOfWork.Campaigns.CreateAsync(campaign);
             await _unitOfWork.SaveChangesAsync(); // Ensure changes are saved
@@ -168,6 +168,12 @@ namespace Application.Services
         public async Task<IEnumerable<CampaignDto>> GetCampaignsByStatusAsync(string status)
         {
             var campaigns = await _unitOfWork.Campaigns.GetAllAsync(c => c.Status == status);
+            return _mapper.Map<IEnumerable<CampaignDto>>(campaigns);
+        }
+
+        public async Task<IEnumerable<CampaignDto>> GetPendingCampaignsAsync()
+        {
+            var campaigns = await _unitOfWork.Campaigns.GetAllAsync(c => c.Status == "Pending");
             return _mapper.Map<IEnumerable<CampaignDto>>(campaigns);
         }
     }

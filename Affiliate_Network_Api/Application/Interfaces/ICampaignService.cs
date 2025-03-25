@@ -23,5 +23,8 @@ namespace Application.Interfaces
         Task<decimal> GetTotalBudgetByAdvertiserAsync(int advertiserId);
         Task<IEnumerable<CampaignDto>> GetActiveCampaignsAsync();
         Task<IEnumerable<CampaignDto>> GetCampaignsByStatusAsync(string status);
+        Task<IEnumerable<CampaignDto>> GetPendingCampaignsAsync();
+
+
     }
 }
