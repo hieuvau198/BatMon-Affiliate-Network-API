@@ -20,6 +20,9 @@ namespace Application.Contracts.Payment
         public string CurrencyCode { get; set; } = null!;
         public string? PaymentMethodName { get; set; }
         public string? CurrencyName { get; set; }
+        public int? SenderId { get; set; }
+
+        public int? ReceiverId { get; set; }
     }
 
     public class CreatePaymentDto
@@ -33,6 +36,8 @@ namespace Application.Contracts.Payment
         public string? Notes { get; set; }
         public string? RequestType { get; set; }
         public string CurrencyCode { get; set; } = null!;
+        public int? SenderId { get; set; }
+        public int? ReceiverId { get; set; }
     }
 
     public class UpdatePaymentDto
