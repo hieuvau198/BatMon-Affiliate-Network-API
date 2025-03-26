@@ -25,6 +25,10 @@ public partial class Payment
 
     public string CurrencyCode { get; set; } = null!;
 
+    public int? SenderId { get; set; }
+
+    public int? ReceiverId { get; set; }
+
     public virtual Currency CurrencyCodeNavigation { get; set; } = null!;
 
     public virtual PaymentMethod? PaymentMethod { get; set; }

@@ -43,6 +43,7 @@ namespace Infrastructure.UnitOfWorks
         public IGenericRepository<PublisherReferral> PublisherReferrals { get; }
         public IGenericRepository<TrafficSource> TrafficSources { get; }
         public IGenericRepository<WithdrawalRequest> WithdrawalRequests { get; }
+        public IGenericRepository<Transaction> Transactions { get; }
 
         public UnitOfWork(AffiliateDbContext context)
         {
@@ -78,6 +79,7 @@ namespace Infrastructure.UnitOfWorks
             PublisherReferrals = new GenericRepository<PublisherReferral>(context);
             TrafficSources = new GenericRepository<TrafficSource>(context);
             WithdrawalRequests = new GenericRepository<WithdrawalRequest>(context);
+            Transactions = new GenericRepository<Transaction>(context);
         }
 
         public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();

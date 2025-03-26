@@ -1,4 +1,4 @@
-﻿using Application.Contracts.PromoteUrlvariantService;
+﻿using Application.Contracts.PromoteUrlvariant;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Application.Contracts.PromoteUrlvariantService;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Application.Contracts.PromoteUrlvariant;
 
 namespace Api.Controllers
 {
