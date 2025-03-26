@@ -77,14 +77,20 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TrafficSourceDto>> UpdateTrafficSource([FromBody] TrafficSourceUpdateDto trafficSourceDto)
+        public async Task<ActionResult<TrafficSourceDto>> UpdateTrafficSource(int id, [FromBody] TrafficSourceUpdateDto trafficSourceDto)
         {
             try
             {
+                // Validate that the ID in the URL matches the ID in the DTO
+                if (id != trafficSourceDto.SourceId)
+                {
+                    return BadRequest(new { message = "The ID in the URL does not match the ID in the request body" });
+                }
+
                 var updatedTrafficSource = await _trafficSourceService.UpdateTrafficSourceAsync(trafficSourceDto);
                 return Ok(updatedTrafficSource);
             }
