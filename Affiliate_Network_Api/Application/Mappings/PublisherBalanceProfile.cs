@@ -3,7 +3,7 @@ using Application.Contracts.PublisherBalance;
 using AutoMapper;
 using Domain.Entities;
 
-namespace Application.MappingProfiles
+namespace Application.Mappings
 {
     public class PublisherBalanceProfile : Profile
     {

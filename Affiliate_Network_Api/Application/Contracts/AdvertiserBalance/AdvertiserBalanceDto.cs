@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace Application.Contracts.AdvertiserBalance
         public decimal? LifetimeWithdrawals { get; set; }
         public decimal? LifetimeSpend { get; set; }
         public DateOnly? LastUpdated { get; set; }
-        public string CurrencyCode { get; set; }
+        public string? CurrencyCode { get; set; }
     }
 
     public class AdvertiserBalanceCreateDto

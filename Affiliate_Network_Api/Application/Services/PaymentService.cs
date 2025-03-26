@@ -3,23 +3,18 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IGenericRepository<Payment> _paymentRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public PaymentService(IGenericRepository<Payment> paymentRepository, IMapper mapper)
+        public PaymentService(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _paymentRepository = paymentRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -27,7 +22,7 @@ namespace Application.Services
         {
             Expression<Func<Payment, bool>> predicate = BuildFilterPredicate(filter);
 
-            var payments = await _paymentRepository.GetAllAsync(
+            var payments = await _unitOfWork.Payments.GetAllAsync(
                 predicate,
                 p => p.PaymentMethod!,
                 p => p.CurrencyCodeNavigation);
@@ -37,7 +32,7 @@ namespace Application.Services
 
         public async Task<PaymentDto?> GetPaymentByIdAsync(int id)
         {
-            var payment = await _paymentRepository.GetByIdAsync(
+            var payment = await _unitOfWork.Payments.GetByIdAsync(
                 id,
                 p => p.PaymentMethod!,
                 p => p.CurrencyCodeNavigation);
@@ -84,11 +79,29 @@ namespace Application.Services
         public async Task<PaymentDto> CreatePaymentAsync(CreatePaymentDto paymentDto)
         {
             var payment = _mapper.Map<Payment>(paymentDto);
+            var createdPayment = await _unitOfWork.Payments.CreateAsync(payment);
 
-            var createdPayment = await _paymentRepository.CreateAsync(payment);
+            if (payment.Status == "Completed")
+            {
+                var transaction = new Transaction
+                {
+                    SenderId = payment.SenderId,
+                    ReceiverId = payment.ReceiverId,
+                    Amount = payment.Amount ?? 0,
+                    Currency = payment.CurrencyCode,
+                    PaymentDate = payment.PaymentDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
+                    Notes = payment.Notes,
+                    TransactionRef = payment.TransactionId,
+                    SenderName = "Sender Name",
+                    ReceiverName = "Receiver Name"
+                };
 
-            // Fetch the created payment with its relations
-            var paymentWithRelations = await _paymentRepository.GetByIdAsync(
+                await _unitOfWork.Transactions.CreateAsync(transaction);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var paymentWithRelations = await _unitOfWork.Payments.GetByIdAsync(
                 createdPayment.PaymentId,
                 p => p.PaymentMethod!,
                 p => p.CurrencyCodeNavigation);
@@ -98,18 +111,34 @@ namespace Application.Services
 
         public async Task<PaymentDto?> UpdatePaymentAsync(int id, UpdatePaymentDto paymentDto)
         {
-            var existingPayment = await _paymentRepository.GetByIdAsync(id);
-
+            var existingPayment = await _unitOfWork.Payments.GetByIdAsync(id);
             if (existingPayment == null)
                 return null;
 
-            // Update only the properties that are provided
             _mapper.Map(paymentDto, existingPayment);
+            await _unitOfWork.Payments.UpdateAsync(existingPayment);
 
-            await _paymentRepository.UpdateAsync(existingPayment);
+            if (existingPayment.Status == "Completed")
+            {
+                var transaction = new Transaction
+                {
+                    SenderId = existingPayment.SenderId,
+                    ReceiverId = existingPayment.ReceiverId,
+                    Amount = existingPayment.Amount ?? 0,
+                    Currency = existingPayment.CurrencyCode,
+                    PaymentDate = existingPayment.PaymentDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
+                    Notes = existingPayment.Notes,
+                    TransactionRef = existingPayment.TransactionId,
+                    SenderName = "Sender Name",
+                    ReceiverName = "Receiver Name"
+                };
 
-            // Fetch the updated payment with its relations
-            var updatedPayment = await _paymentRepository.GetByIdAsync(
+                await _unitOfWork.Transactions.CreateAsync(transaction);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var updatedPayment = await _unitOfWork.Payments.GetByIdAsync(
                 id,
                 p => p.PaymentMethod!,
                 p => p.CurrencyCodeNavigation);
@@ -119,93 +148,108 @@ namespace Application.Services
 
         public async Task<bool> DeletePaymentAsync(int id)
         {
-            var payment = await _paymentRepository.GetByIdAsync(id);
-
+            var payment = await _unitOfWork.Payments.GetByIdAsync(id);
             if (payment == null)
                 return false;
 
-            await _paymentRepository.DeleteAsync(payment);
+            await _unitOfWork.Payments.DeleteAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> ApprovePaymentAsync(int id)
         {
-            var payment = await _paymentRepository.GetByIdAsync(id);
-
+            var payment = await _unitOfWork.Payments.GetByIdAsync(id);
             if (payment == null)
                 return false;
 
             payment.Status = "Approved";
-            await _paymentRepository.UpdateAsync(payment);
+            await _unitOfWork.Payments.UpdateAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> RejectPaymentAsync(int id)
         {
-            var payment = await _paymentRepository.GetByIdAsync(id);
-
+            var payment = await _unitOfWork.Payments.GetByIdAsync(id);
             if (payment == null)
                 return false;
 
             payment.Status = "Rejected";
-            await _paymentRepository.UpdateAsync(payment);
+            await _unitOfWork.Payments.UpdateAsync(payment);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> ExistsAsync(int id)
         {
-            return await _paymentRepository.ExistsAsync(p => p.PaymentId == id);
+            return await _unitOfWork.Payments.ExistsAsync(p => p.PaymentId == id);
         }
 
         public async Task<int> CountPaymentsAsync(PaymentFilterDto filter)
         {
             Expression<Func<Payment, bool>> predicate = BuildFilterPredicate(filter);
-            return await _paymentRepository.CountAsync(predicate);
+            return await _unitOfWork.Payments.CountAsync(predicate);
         }
 
         public async Task<int> CountPaymentsByMethodAsync(int paymentMethodId)
         {
-            return await _paymentRepository.CountAsync(p => p.PaymentMethodId == paymentMethodId);
+            return await _unitOfWork.Payments.CountAsync(p => p.PaymentMethodId == paymentMethodId);
         }
 
         public async Task<int> CountPaymentsByStatusAsync(string status)
         {
-            return await _paymentRepository.CountAsync(p => p.Status == status);
+            return await _unitOfWork.Payments.CountAsync(p => p.Status == status);
         }
 
         private Expression<Func<Payment, bool>> BuildFilterPredicate(PaymentFilterDto filter)
         {
-            // Start with a predicate that is always true
             Expression<Func<Payment, bool>> predicate = p => true;
 
             if (filter.RequestId.HasValue)
-                predicate = p => p.RequestId == filter.RequestId;
+                predicate = predicate.And(p => p.RequestId == filter.RequestId);
 
             if (filter.PaymentMethodId.HasValue)
-                predicate = p => p.PaymentMethodId == filter.PaymentMethodId;
+                predicate = predicate.And(p => p.PaymentMethodId == filter.PaymentMethodId);
 
             if (!string.IsNullOrEmpty(filter.Status))
-                predicate = p => p.Status == filter.Status;
+                predicate = predicate.And(p => p.Status == filter.Status);
 
             if (!string.IsNullOrEmpty(filter.RequestType))
-                predicate = p => p.RequestType == filter.RequestType;
+                predicate = predicate.And(p => p.RequestType == filter.RequestType);
 
             if (!string.IsNullOrEmpty(filter.CurrencyCode))
-                predicate = p => p.CurrencyCode == filter.CurrencyCode;
+                predicate = predicate.And(p => p.CurrencyCode == filter.CurrencyCode);
 
             if (filter.StartDate.HasValue)
-                predicate = p => p.PaymentDate >= filter.StartDate;
+                predicate = predicate.And(p => p.PaymentDate >= filter.StartDate);
 
             if (filter.EndDate.HasValue)
-                predicate = p => p.PaymentDate <= filter.EndDate;
+                predicate = predicate.And(p => p.PaymentDate <= filter.EndDate);
 
             if (filter.MinAmount.HasValue)
-                predicate = p => p.Amount >= filter.MinAmount;
+                predicate = predicate.And(p => p.Amount >= filter.MinAmount);
 
             if (filter.MaxAmount.HasValue)
-                predicate = p => p.Amount <= filter.MaxAmount;
+                predicate = predicate.And(p => p.Amount <= filter.MaxAmount);
 
             return predicate;
+        }
+    }
+
+    public static class PredicateBuilder
+    {
+        public static Expression<Func<T, bool>> And<T>(
+            this Expression<Func<T, bool>> expr1,
+            Expression<Func<T, bool>> expr2)
+        {
+            var parameter = Expression.Parameter(typeof(T));
+
+            var combined = Expression.AndAlso(
+                Expression.Invoke(expr1, parameter),
+                Expression.Invoke(expr2, parameter));
+
+            return Expression.Lambda<Func<T, bool>>(combined, parameter);
         }
     }
 }

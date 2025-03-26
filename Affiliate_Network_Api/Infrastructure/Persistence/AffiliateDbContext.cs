@@ -29,7 +29,7 @@ public partial class AffiliateDbContext : DbContext
     public virtual DbSet<CampaignAdvertiserUrl> CampaignAdvertiserUrls { get; set; }
 
     public virtual DbSet<CampaignConversionType> CampaignConversionTypes { get; set; }
-    
+
     public virtual DbSet<CampaignPolicy> CampaignPolicies { get; set; }
 
     public virtual DbSet<CampaignPublisherCommission> CampaignPublisherCommissions { get; set; }
@@ -72,7 +72,10 @@ public partial class AffiliateDbContext : DbContext
 
     public virtual DbSet<TrafficSource> TrafficSources { get; set; }
 
+    public virtual DbSet<Transaction> Transactions { get; set; }
+
     public virtual DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -707,10 +710,12 @@ public partial class AffiliateDbContext : DbContext
                 .HasColumnName("notes");
             entity.Property(e => e.PaymentDate).HasColumnName("payment_date");
             entity.Property(e => e.PaymentMethodId).HasColumnName("payment_method_id");
+            entity.Property(e => e.ReceiverId).HasColumnName("receiver_id");
             entity.Property(e => e.RequestId).HasColumnName("request_id");
             entity.Property(e => e.RequestType)
                 .HasMaxLength(50)
                 .HasColumnName("request_type");
+            entity.Property(e => e.SenderId).HasColumnName("sender_id");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasColumnName("status");
@@ -1044,6 +1049,44 @@ public partial class AffiliateDbContext : DbContext
             entity.HasOne(d => d.Publisher).WithMany(p => p.TrafficSources)
                 .HasForeignKey(d => d.PublisherId)
                 .HasConstraintName("FK__TrafficSo__publi__725BF7F6");
+        });
+
+        modelBuilder.Entity<Transaction>(entity =>
+        {
+            entity.HasKey(e => e.TransactionId).HasName("PK__Transact__85C600AF7908CC44");
+
+            entity.ToTable("Transaction");
+
+            entity.Property(e => e.TransactionId).HasColumnName("transaction_id");
+            entity.Property(e => e.Amount)
+                .HasDefaultValue(1000000m)
+                .HasColumnType("decimal(18, 2)")
+                .HasColumnName("amount");
+            entity.Property(e => e.Currency)
+                .HasMaxLength(50)
+                .HasDefaultValue("VND")
+                .HasColumnName("currency");
+            entity.Property(e => e.Notes)
+                .HasMaxLength(500)
+                .HasDefaultValue("No notes")
+                .HasColumnName("notes");
+            entity.Property(e => e.PaymentDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("payment_date");
+            entity.Property(e => e.ReceiverId).HasColumnName("receiver_id");
+            entity.Property(e => e.ReceiverName)
+                .HasMaxLength(255)
+                .HasDefaultValue("Transaction Receiver")
+                .HasColumnName("receiver_name");
+            entity.Property(e => e.SenderId).HasColumnName("sender_id");
+            entity.Property(e => e.SenderName)
+                .HasMaxLength(255)
+                .HasDefaultValue("Transaction Sender")
+                .HasColumnName("sender_name");
+            entity.Property(e => e.TransactionRef)
+                .HasMaxLength(255)
+                .HasDefaultValueSql("(newid())")
+                .HasColumnName("transaction_ref");
         });
 
         modelBuilder.Entity<WithdrawalRequest>(entity =>

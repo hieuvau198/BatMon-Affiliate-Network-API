@@ -38,6 +38,7 @@ namespace Domain.Interfaces
         IGenericRepository<PublisherReferral> PublisherReferrals { get; }
         IGenericRepository<TrafficSource> TrafficSources { get; }
         IGenericRepository<WithdrawalRequest> WithdrawalRequests { get; }
+        IGenericRepository<Transaction> Transactions { get; }
 
         Task<int> SaveChangesAsync();
     }

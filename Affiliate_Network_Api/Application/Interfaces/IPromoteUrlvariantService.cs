@@ -1,4 +1,4 @@
-﻿using Application.Contracts.PromoteUrlvariantService;
+﻿using Application.Contracts.PromoteUrlvariant;
 using System;
 using System.Collections.Generic;
 using System.Linq;

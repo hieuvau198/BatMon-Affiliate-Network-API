@@ -101,6 +101,7 @@ builder.Services.AddScoped<IPublisherBalanceService, PublisherBalanceService>();
 builder.Services.AddScoped<ICampaignAdvertiserUrlService, CampaignAdvertiserUrlService>();
 builder.Services.AddScoped<ICampaignConversionTypeService, CampaignConversionTypeService>();
 builder.Services.AddScoped<ICampaignPublisherCommissionService, CampaignPublisherCommissionService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 #endregion
 
